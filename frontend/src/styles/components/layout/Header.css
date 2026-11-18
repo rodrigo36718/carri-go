@@ -1,0 +1,297 @@
+
+/* =========================================
+   HEADER PRINCIPAL
+========================================= */
+
+.header {
+    width: 100%;
+    background-color: #050505;
+    border-bottom: 1px solid #292929;
+    box-sizing: border-box;
+    position: relative;
+    z-index: 100;
+}
+
+/* =========================================
+   CONTENIDO DEL HEADER
+========================================= */
+
+.header-contenido {
+    width: 100%;
+    max-width: 1320px;
+    min-height: 82px;
+    margin: 0 auto;
+    padding: 0 30px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    box-sizing: border-box;
+}
+
+/* =========================================
+   LOGO
+========================================= */
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.logo img {
+    width: 75px;
+    height: 75px;
+    object-fit: contain;
+    display: block;
+}
+
+.logo h1 {
+    margin: 0;
+    color: white;
+    font-size: 32px;
+    font-weight: 700;
+    font-family: Arial, sans-serif;
+    white-space: nowrap;
+}
+
+.logo h1::first-letter {
+    color: white;
+}
+
+/* =========================================
+   BOTONES DE USUARIO
+========================================= */
+
+.usuario {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    flex-shrink: 0;
+}
+
+.btn-login,
+.btn-registro {
+    height: 44px;
+    padding: 0 23px;
+    border-radius: 10px;
+
+    font-size: 14px;
+    font-weight: 500;
+
+    cursor: pointer;
+    box-sizing: border-box;
+
+    transition:
+        background-color 0.2s ease,
+        color 0.2s ease,
+        transform 0.2s ease;
+}
+
+/* =========================================
+   INICIAR SESIÓN
+========================================= */
+
+.btn-login {
+    background-color: transparent;
+    border: 1px solid #ff711f;
+    color: white;
+}
+
+.btn-login:hover {
+    background-color: #ff711f;
+    transform: translateY(-2px);
+}
+
+/* =========================================
+   REGISTRARSE
+========================================= */
+
+.btn-registro {
+    background-color: #ff711f;
+    border: 1px solid #ff711f;
+    color: #050505;
+}
+
+.btn-registro:hover {
+    background-color: #ff8a45;
+    border-color: #ff8a45;
+    transform: translateY(-2px);
+}
+
+/* =========================================
+   PERFIL CON IMAGEN CIRCULAR
+========================================= */
+
+.perfil {
+    width: 50px;
+    height: 50px;
+
+    padding: 0;
+    border-radius: 50%;
+    border: 1px solid #ff711f;
+
+    background-color: transparent;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    overflow: hidden;
+    flex-shrink: 0;
+    cursor: pointer;
+    box-sizing: border-box;
+
+    transition:
+        border-color 0.2s ease,
+        transform 0.2s ease;
+}
+
+/* La imagen ocupa todo el círculo */
+
+.perfil img {
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+    object-position: center;
+
+    display: block;
+    border-radius: 50%;
+}
+
+.perfil:hover {
+    border-color: #ff8a45;
+    transform: translateY(-2px);
+}
+
+/* =========================================
+   RESPONSIVE: PANTALLAS MEDIANAS
+========================================= */
+
+@media (max-width: 1100px) {
+
+    .header-contenido {
+        padding: 0 20px;
+    }
+
+    .logo img {
+        width: 65px;
+        height: 65px;
+    }
+
+    .logo h1 {
+        font-size: 27px;
+    }
+
+    .usuario {
+        gap: 8px;
+    }
+
+    .btn-login,
+    .btn-registro {
+        padding: 0 15px;
+        font-size: 13px;
+    }
+
+    .perfil {
+        width: 44px;
+        height: 44px;
+    }
+}
+
+/* =========================================
+   RESPONSIVE: TABLETS
+========================================= */
+
+@media (max-width: 850px) {
+
+    .header-contenido {
+        min-height: 70px;
+        padding: 0 12px;
+    }
+
+    .logo {
+        gap: 5px;
+    }
+
+    .logo img {
+        width: 52px;
+        height: 52px;
+    }
+
+    .logo h1 {
+        font-size: 22px;
+    }
+
+    .usuario {
+        gap: 5px;
+    }
+
+    .btn-login,
+    .btn-registro {
+        height: 36px;
+        padding: 0 9px;
+        font-size: 10px;
+    }
+
+    .perfil {
+        width: 36px;
+        height: 36px;
+    }
+}
+
+/* =========================================
+   RESPONSIVE: CELULARES
+========================================= */
+
+@media (max-width: 650px) {
+
+    .header-contenido {
+        flex-wrap: wrap;
+        justify-content: center;
+        padding: 8px 10px;
+    }
+
+    .logo {
+        width: auto;
+    }
+
+    .usuario {
+        width: auto;
+    }
+}
+
+/* =========================================
+   RESPONSIVE: CELULARES PEQUEÑOS
+========================================= */
+
+@media (max-width: 500px) {
+
+    .header-contenido {
+        gap: 5px;
+    }
+
+    .logo img {
+        width: 42px;
+        height: 42px;
+    }
+
+    .logo h1 {
+        font-size: 18px;
+    }
+
+    .btn-login,
+    .btn-registro {
+        height: 31px;
+        padding: 0 6px;
+        font-size: 8px;
+    }
+
+    .perfil {
+        width: 31px;
+        height: 31px;
+    }
+}

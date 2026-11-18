@@ -1,0 +1,117 @@
+.footer {
+    width: 100%;
+
+    background-color: #050505;
+
+    border-top: 1px solid #242424;
+
+    box-sizing: border-box;
+}
+
+
+.footer-contenido {
+    min-height: 90px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 18px;
+
+    padding: 20px;
+
+    box-sizing: border-box;
+}
+
+.footer-marca {
+    display: flex;
+    align-items: center;
+
+    gap: 8px;
+}
+
+.footer-marca img {
+    width: 38px;
+    height: 38px;
+
+    object-fit: contain;
+
+    display: block;
+}
+
+.footer-marca span {
+    color: #ff711f;
+
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.footer-separador {
+    width: 1px;
+    height: 25px;
+
+    background-color: #555;
+}
+
+.footer-contenido p {
+    margin: 0;
+
+    color: #8d8d8d;
+
+    font-size: 14px;
+}
+
+
+/* =========================
+   TABLET
+========================= */
+
+@media (max-width: 700px) {
+
+    .footer-contenido {
+        min-height: 75px;
+
+        gap: 12px;
+
+        padding: 15px;
+    }
+
+    .footer-marca img {
+        width: 32px;
+        height: 32px;
+    }
+
+    .footer-marca span {
+        font-size: 16px;
+    }
+
+    .footer-contenido p {
+        font-size: 12px;
+    }
+
+}
+
+@media (max-width: 450px) {
+
+    .footer-contenido {
+        gap: 8px;
+    }
+
+    .footer-marca img {
+        width: 28px;
+        height: 28px;
+    }
+
+    .footer-marca span {
+        font-size: 14px;
+    }
+
+    .footer-contenido p {
+        font-size: 11px;
+    }
+
+    .footer-separador {
+        height: 20px;
+    }
+
+}

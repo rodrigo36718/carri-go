@@ -1,0 +1,120 @@
+.nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.nav-lista {
+    display: flex;
+    align-items: center;
+    gap: 42px;
+
+    margin: 0;
+    padding: 0;
+
+    list-style: none;
+}
+
+.nav-link {
+    position: relative;
+
+    display: flex;
+    align-items: center;
+
+    height: 78px;
+
+    color: #d0d0d0;
+
+    text-decoration: none;
+
+    font-size: 16px;
+    font-weight: 500;
+
+    transition: color 0.2s ease;
+}
+
+.nav-link:hover {
+    color: white;
+}
+
+.nav-link::after {
+    content: "";
+
+    position: absolute;
+
+    left: 0;
+    right: 0;
+    bottom: 11px;
+
+    height: 3px;
+
+    background-color: transparent;
+
+    border-radius: 3px;
+
+    transition: background-color 0.2s ease;
+}
+
+.nav-link.activo {
+    color: #ff711f;
+}
+
+.nav-link.activo::after {
+    background-color: #ff711f;
+}
+
+
+/* =========================
+   TABLET
+========================= */
+
+@media (max-width: 1000px) {
+
+    .nav-lista {
+        gap: 25px;
+    }
+
+    .nav-link {
+        font-size: 14px;
+    }
+
+}
+
+
+/* =========================
+   CELULAR
+========================= */
+
+@media (max-width: 750px) {
+
+    .nav-lista {
+        gap: 12px;
+    }
+
+    .nav-link {
+        height: 60px;
+        font-size: 12px;
+    }
+
+    .nav-link::after {
+        bottom: 7px;
+    }
+
+}
+
+
+/* =========================
+   CELULAR PEQUEÑO
+========================= */
+
+@media (max-width: 550px) {
+
+    .nav-lista {
+        gap: 8px;
+    }
+
+    .nav-link {
+        font-size: 10px;
+    }
+
+}
