@@ -20,9 +20,13 @@ async function registrarUsuario(usuario) {
     const passwordHash = await bcrypt.hash(usuario.password, salt);
 
     const query = `
-      INSERT INTO usuarios (nombre, apellido, email, password, telefono, rol)
-      VALUES ($1, $2, $3, $4, $5, $6)
-      RETURNING id, nombre, apellido, email, telefono, rol, created_at
+      INSERT INTO usuarios (
+        nombre, apellido, email, password, telefono, rol,
+        modalidad_delivery, modalidad_encargos
+      )
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      RETURNING id, nombre, apellido, email, telefono, rol,
+                modalidad_delivery, modalidad_encargos, created_at
     `;
 
     const values = [
@@ -31,7 +35,9 @@ async function registrarUsuario(usuario) {
       usuario.email,
       passwordHash,
       usuario.telefono || null,
-      usuario.rol || 'cliente'   // cliente | restaurante | repartidor
+      usuario.rol || 'cliente',
+      Boolean(usuario.modalidad_delivery),
+      Boolean(usuario.modalidad_encargos)
     ];
 
     const result = await pool.query(query, values);
@@ -63,11 +69,31 @@ async function validarLogin(email, password) {
 async function getUsuarioById(id) {
   try {
     const query = `
-      SELECT id, nombre, apellido, email, rol, telefono, created_at 
-      FROM usuarios 
+      SELECT id, nombre, apellido, email, rol, telefono,
+             modalidad_delivery, modalidad_encargos, created_at
+      FROM usuarios
       WHERE id = $1
     `;
     const result = await pool.query(query, [id]);
+    return result.rows[0];
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
+
+// Actualizar las modalidades habilitadas para un repartidor
+async function actualizarModalidades(id, modalidadDelivery, modalidadEncargos) {
+  try {
+    const query = `
+      UPDATE usuarios
+      SET modalidad_delivery = $2,
+          modalidad_encargos = $3
+      WHERE id = $1 AND rol = 'repartidor'
+      RETURNING id, nombre, apellido, email, rol, telefono,
+                modalidad_delivery, modalidad_encargos
+    `;
+    const result = await pool.query(query, [id, modalidadDelivery, modalidadEncargos]);
     return result.rows[0];
   } catch (error) {
     console.log(error);
@@ -79,5 +105,6 @@ module.exports = {
   getUsuarioByEmail,
   registrarUsuario,
   validarLogin,
-  getUsuarioById
+  getUsuarioById,
+  actualizarModalidades
 };
