@@ -11,6 +11,7 @@ import Encargos from "./pages/Encargos";
 
 import Iniciarsesion from "./pages/Iniciarsesion";
 import Registrarse from "./pages/Registrarse";
+import ModalidadRepartidor from "./pages/ModalidadRepartidor";
 
 import "./App.css";
 
@@ -18,17 +19,25 @@ function App() {
   const [ventana, setVentana] = useState(null);
   const [usuario, setUsuario] = useState(null);
 
-  // Cargar usuario si ya estaba logueado
   useEffect(() => {
     const usuarioGuardado = localStorage.getItem("usuario");
     if (usuarioGuardado) {
-      setUsuario(JSON.parse(usuarioGuardado));
+      try {
+        setUsuario(JSON.parse(usuarioGuardado));
+      } catch (error) {
+        localStorage.removeItem("usuario");
+      }
     }
   }, []);
 
   const handleLoginSuccess = (usuarioLogueado) => {
     setUsuario(usuarioLogueado);
-    setVentana(null); // cierra el modal
+    setVentana(null);
+  };
+
+  const handleUsuarioActualizado = (usuarioActualizado) => {
+    setUsuario(usuarioActualizado);
+    localStorage.setItem("usuario", JSON.stringify(usuarioActualizado));
   };
 
   const handleLogout = () => {
@@ -45,6 +54,7 @@ function App() {
           onLogout={handleLogout}
           abrirIniciarSesion={() => setVentana("login")}
           abrirRegistrarse={() => setVentana("registro")}
+          abrirPerfil={() => setVentana("modalidades")}
         />
 
         <Routes>
@@ -59,10 +69,7 @@ function App() {
 
       {ventana !== null && (
         <div className="modal-fondo" onClick={() => setVentana(null)}>
-          <div
-            className="modal-contenido"
-            onClick={(e) => e.stopPropagation()}
-          >
+          <div className="modal-contenido" onClick={(e) => e.stopPropagation()}>
             {ventana === "login" && (
               <Iniciarsesion
                 onLoginSuccess={handleLoginSuccess}
@@ -71,8 +78,14 @@ function App() {
             )}
 
             {ventana === "registro" && (
-              <Registrarse
-                abrirIniciarSesion={() => setVentana("login")}
+              <Registrarse abrirIniciarSesion={() => setVentana("login")} />
+            )}
+
+            {ventana === "modalidades" && usuario?.rol === "repartidor" && (
+              <ModalidadRepartidor
+                usuario={usuario}
+                onUsuarioActualizado={handleUsuarioActualizado}
+                cerrar={() => setVentana(null)}
               />
             )}
           </div>
