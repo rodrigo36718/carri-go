@@ -1,54 +1,39 @@
 var express = require('express');
 var router = express.Router();
 var usuariosModel = require('../models/usuariosModel');
+var productosModel = require('../models/productosModel');
+var serviciosModel = require('../models/serviciosModel');
 var jwt = require('jsonwebtoken');
 
-const ROLES_PERMITIDOS = ['cliente', 'restaurante', 'repartidor'];
-const MODALIDADES_PERMITIDAS = ['delivery', 'encargos'];
-
-function autenticarToken(req, res, next) {
-  const authHeader = req.headers.authorization;
-  const token = authHeader && authHeader.startsWith('Bearer ')
-    ? authHeader.split(' ')[1]
-    : null;
+// ======================
+// MIDDLEWARE DE AUTH
+// ======================
+function verificarToken(req, res, next) {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
 
   if (!token) {
-    return res.status(401).json({ error: true, message: 'Token no proporcionado' });
+    return res.status(401).json({ error: true, message: 'Token requerido' });
   }
 
-  try {
-    req.usuario = jwt.verify(
-      token,
-      process.env.JWT_SECRET || 'carrigo_secret_key_cambiar'
-    );
+  jwt.verify(token, process.env.JWT_SECRET || 'carrigo_secret_key_cambiar', (err, usuario) => {
+    if (err) {
+      return res.status(403).json({ error: true, message: 'Token inválido' });
+    }
+    req.usuario = usuario;
     next();
-  } catch (error) {
-    return res.status(401).json({ error: true, message: 'Token inválido o vencido' });
-  }
+  });
 }
 
-// REGISTRO
+// ======================
+// AUTENTICACIÓN
+// ======================
 router.post('/register', async (req, res) => {
   try {
     const { nombre, apellido, email, password, telefono, rol } = req.body;
-    const modalidades = req.body.modalidades || [];
 
     if (!nombre || !apellido || !email || !password) {
       return res.status(400).json({ error: true, message: 'Faltan datos obligatorios' });
-    }
-
-    const rolFinal = rol || 'cliente';
-    if (!ROLES_PERMITIDOS.includes(rolFinal)) {
-      return res.status(400).json({ error: true, message: 'El tipo de cuenta seleccionado no es válido' });
-    }
-
-    if (rolFinal === 'repartidor') {
-      if (!Array.isArray(modalidades) || modalidades.some(m => !MODALIDADES_PERMITIDAS.includes(m))) {
-        return res.status(400).json({ error: true, message: 'Las modalidades seleccionadas no son válidas' });
-      }
-      if (modalidades.length === 0) {
-        return res.status(400).json({ error: true, message: 'Seleccioná al menos una modalidad de repartidor' });
-      }
     }
 
     const usuarioExistente = await usuariosModel.getUsuarioByEmail(email);
@@ -57,14 +42,7 @@ router.post('/register', async (req, res) => {
     }
 
     const nuevoUsuario = await usuariosModel.registrarUsuario({
-      nombre,
-      apellido,
-      email,
-      password,
-      telefono,
-      rol: rolFinal,
-      modalidad_delivery: rolFinal === 'repartidor' && modalidades.includes('delivery'),
-      modalidad_encargos: rolFinal === 'repartidor' && modalidades.includes('encargos')
+      nombre, apellido, email, password, telefono, rol: rol || 'cliente'
     });
 
     res.status(201).json({
@@ -78,7 +56,6 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// LOGIN
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -93,14 +70,7 @@ router.post('/login', async (req, res) => {
     }
 
     const token = jwt.sign(
-      {
-        id: usuario.id,
-        email: usuario.email,
-        rol: usuario.rol,
-        nombre: usuario.nombre,
-        modalidad_delivery: usuario.modalidad_delivery,
-        modalidad_encargos: usuario.modalidad_encargos
-      },
+      { id: usuario.id, email: usuario.email, rol: usuario.rol, nombre: usuario.nombre },
       process.env.JWT_SECRET || 'carrigo_secret_key_cambiar',
       { expiresIn: '7d' }
     );
@@ -115,9 +85,7 @@ router.post('/login', async (req, res) => {
         apellido: usuario.apellido,
         email: usuario.email,
         rol: usuario.rol,
-        telefono: usuario.telefono,
-        modalidad_delivery: usuario.modalidad_delivery,
-        modalidad_encargos: usuario.modalidad_encargos
+        telefono: usuario.telefono
       }
     });
   } catch (error) {
@@ -126,51 +94,110 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// ACTUALIZAR MODALIDADES DEL REPARTIDOR
-router.patch('/repartidor/modalidades', autenticarToken, async (req, res) => {
+// ======================
+// PRODUCTOS (RESTAURANTES)
+// ======================
+
+// Listar todos los productos (página Delivery)
+router.get('/productos', async (req, res) => {
   try {
-    if (req.usuario.rol !== 'repartidor') {
-      return res.status(403).json({ error: true, message: 'Esta opción es solo para cuentas de repartidor' });
-    }
-
-    const { modalidad_delivery, modalidad_encargos } = req.body;
-    if (typeof modalidad_delivery !== 'boolean' || typeof modalidad_encargos !== 'boolean') {
-      return res.status(400).json({ error: true, message: 'Indicá ambas modalidades como verdadero o falso' });
-    }
-
-    if (!modalidad_delivery && !modalidad_encargos) {
-      return res.status(400).json({ error: true, message: 'Debés mantener al menos una modalidad activa' });
-    }
-
-    const usuarioActualizado = await usuariosModel.actualizarModalidades(
-      req.usuario.id,
-      modalidad_delivery,
-      modalidad_encargos
-    );
-
-    if (!usuarioActualizado) {
-      return res.status(404).json({ error: true, message: 'No se encontró el usuario' });
-    }
-
-    res.json({
-      error: false,
-      message: 'Modalidades actualizadas correctamente',
-      usuario: usuarioActualizado
-    });
+    const productos = await productosModel.getProductos();
+    res.json({ error: false, productos });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ error: true, message: 'Error al actualizar las modalidades' });
+    res.status(500).json({ error: true, message: 'Error al obtener productos' });
   }
 });
 
-// Ruta de prueba
+// Crear producto (solo rol restaurante)
+router.post('/productos', verificarToken, async (req, res) => {
+  try {
+    if (req.usuario.rol !== 'restaurante') {
+      return res.status(403).json({ error: true, message: 'Solo los restaurantes pueden publicar productos' });
+    }
+
+    const { nombre, descripcion, precio, imagen_url } = req.body;
+
+    if (!nombre || !precio) {
+      return res.status(400).json({ error: true, message: 'Nombre y precio son obligatorios' });
+    }
+
+    // Aseguramos que el usuario tenga un restaurante
+    const restaurante = await productosModel.getOrCreateRestaurante(req.usuario.id, {
+      nombre: req.usuario.nombre + ' Restaurante'
+    });
+
+    const producto = await productosModel.crearProducto({
+      restaurante_id: restaurante.id,
+      nombre,
+      descripcion,
+      precio,
+      imagen_url
+    });
+
+    res.status(201).json({ error: false, message: 'Producto creado', producto });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: true, message: 'Error al crear el producto' });
+  }
+});
+
+// ======================
+// SERVICIOS DE REPARTIDOR (ENCARGOS)
+// ======================
+
+// Listar servicios disponibles
+router.get('/servicios', async (req, res) => {
+  try {
+    const servicios = await serviciosModel.getServiciosDisponibles();
+    res.json({ error: false, servicios });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: true, message: 'Error al obtener servicios' });
+  }
+});
+
+// Publicar / actualizar servicio (solo rol repartidor)
+router.post('/servicios', verificarToken, async (req, res) => {
+  try {
+    if (req.usuario.rol !== 'repartidor') {
+      return res.status(403).json({ error: true, message: 'Solo los repartidores pueden publicar servicios' });
+    }
+
+    const { vehiculo, capacidad, zona, telefono } = req.body;
+
+    if (!vehiculo) {
+      return res.status(400).json({ error: true, message: 'El vehículo es obligatorio' });
+    }
+
+    const servicio = await serviciosModel.publicarServicio({
+      repartidor_id: req.usuario.id,
+      vehiculo,
+      capacidad,
+      zona,
+      telefono
+    });
+
+    res.status(201).json({ error: false, message: 'Servicio publicado', servicio });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: true, message: 'Error al publicar el servicio' });
+  }
+});
+
+// ======================
+// RUTA DE PRUEBA
+// ======================
 router.get('/', (req, res) => {
   res.json({
     message: 'API de Carri-GO funcionando',
     endpoints: [
       'POST /api/register',
       'POST /api/login',
-      'PATCH /api/repartidor/modalidades'
+      'GET  /api/productos',
+      'POST /api/productos  (requiere token + rol restaurante)',
+      'GET  /api/servicios',
+      'POST /api/servicios  (requiere token + rol repartidor)'
     ]
   });
 });

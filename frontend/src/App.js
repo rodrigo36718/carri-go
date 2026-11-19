@@ -12,6 +12,8 @@ import Encargos from "./pages/Encargos";
 import Iniciarsesion from "./pages/Iniciarsesion";
 import Registrarse from "./pages/Registrarse";
 import ModalidadRepartidor from "./pages/ModalidadRepartidor";
+import MisProductos from "./pages/MisProductos";
+import MiServicio from "./pages/MiServicio";
 
 import "./App.css";
 
@@ -62,6 +64,8 @@ function App() {
           <Route path="/Delivery" element={<Delivery />} />
           <Route path="/Encargos" element={<Encargos />} />
           <Route path="/Repartidores" element={<Repartidores />} />
+          <Route path="/MisProductos" element={<MisProductos />} />
+          <Route path="/MiServicio" element={<MiServicio />} />
         </Routes>
 
         <Footer />
