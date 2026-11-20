@@ -40,10 +40,6 @@ const Registrarse = (props) => {
     setCargando(true);
 
     try {
-      const modalidades = [];
-      if (modalidadDelivery) modalidades.push("delivery");
-      if (modalidadEncargos) modalidades.push("encargos");
-
       const res = await fetch("http://localhost:3001/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -53,8 +49,9 @@ const Registrarse = (props) => {
           email,
           password,
           rol,
-          modalidades: rol === "repartidor" ? modalidades : []
-        })
+          modalidad_delivery: rol === "repartidor" ? modalidadDelivery : false,
+          modalidad_encargos: rol === "repartidor" ? modalidadEncargos : false,
+        }),
       });
 
       const data = await res.json();
@@ -89,42 +86,80 @@ const Registrarse = (props) => {
       <form onSubmit={handleSubmit}>
         <div className="campo">
           <label htmlFor="nombre">Nombre</label>
-          <input type="text" id="nombre" placeholder="Tu nombre" value={nombre}
-            onChange={(e) => setNombre(e.target.value)} required />
+          <input
+            type="text"
+            id="nombre"
+            placeholder="Tu nombre"
+            value={nombre}
+            onChange={(e) => setNombre(e.target.value)}
+            required
+          />
         </div>
 
         <div className="campo">
           <label htmlFor="apellido">Apellido</label>
-          <input type="text" id="apellido" placeholder="Tu apellido" value={apellido}
-            onChange={(e) => setApellido(e.target.value)} required />
+          <input
+            type="text"
+            id="apellido"
+            placeholder="Tu apellido"
+            value={apellido}
+            onChange={(e) => setApellido(e.target.value)}
+            required
+          />
         </div>
 
         <div className="campo">
           <label htmlFor="email-registro">Correo electrónico</label>
-          <input type="email" id="email-registro" placeholder="ejemplo@gmail.com" value={email}
-            onChange={(e) => setEmail(e.target.value)} required />
+          <input
+            type="email"
+            id="email-registro"
+            placeholder="ejemplo@gmail.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
         </div>
 
         <div className="campo">
           <label htmlFor="password-registro">Contraseña</label>
-          <input type="password" id="password-registro" placeholder="Crear contraseña" value={password}
-            onChange={(e) => setPassword(e.target.value)} required />
+          <input
+            type="password"
+            id="password-registro"
+            placeholder="Crear contraseña"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
         </div>
 
         <div className="campo">
           <label htmlFor="confirmar-password">Confirmar contraseña</label>
-          <input type="password" id="confirmar-password" placeholder="Repetir contraseña" value={confirmar}
-            onChange={(e) => setConfirmar(e.target.value)} required />
+          <input
+            type="password"
+            id="confirmar-password"
+            placeholder="Repetir contraseña"
+            value={confirmar}
+            onChange={(e) => setConfirmar(e.target.value)}
+            required
+          />
         </div>
 
         <div className="campo">
           <label htmlFor="rol">Tipo de cuenta</label>
-          <select id="rol" value={rol} onChange={(e) => setRol(e.target.value)}
+          <select
+            id="rol"
+            value={rol}
+            onChange={(e) => setRol(e.target.value)}
             style={{
-              width: "100%", height: "42px", backgroundColor: "#101010",
-              color: "white", border: "1px solid #333", borderRadius: "7px",
-              padding: "0 13px"
-            }}>
+              width: "100%",
+              height: "42px",
+              backgroundColor: "#101010",
+              color: "white",
+              border: "1px solid #333",
+              borderRadius: "7px",
+              padding: "0 13px",
+            }}
+          >
             <option value="cliente">Cliente</option>
             <option value="restaurante">Restaurante</option>
             <option value="repartidor">Repartidor</option>
@@ -137,24 +172,43 @@ const Registrarse = (props) => {
             <p style={{ color: "#aaa", fontSize: "13px", margin: "5px 0 10px" }}>
               Podés elegir una o trabajar en las dos modalidades con la misma cuenta.
             </p>
-            <label style={{ display: "flex", alignItems: "center", gap: "9px", marginBottom: "9px" }}>
-              <input type="checkbox" checked={modalidadDelivery}
-                onChange={(e) => setModalidadDelivery(e.target.checked)} />
+            <label
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "9px",
+                marginBottom: "9px",
+              }}
+            >
+              <input
+                type="checkbox"
+                checked={modalidadDelivery}
+                onChange={(e) => setModalidadDelivery(e.target.checked)}
+              />
               Delivery: pedidos de restaurantes
             </label>
             <label style={{ display: "flex", alignItems: "center", gap: "9px" }}>
-              <input type="checkbox" checked={modalidadEncargos}
-                onChange={(e) => setModalidadEncargos(e.target.checked)} />
+              <input
+                type="checkbox"
+                checked={modalidadEncargos}
+                onChange={(e) => setModalidadEncargos(e.target.checked)}
+              />
               Encargos: compras, mandados y trámites
             </label>
           </div>
         )}
 
         {mensaje && (
-          <p style={{
-            color: error ? "#ff4d4d" : "#4caf50", textAlign: "center",
-            marginBottom: "12px", fontSize: "14px"
-          }}>{mensaje}</p>
+          <p
+            style={{
+              color: error ? "#ff4d4d" : "#4caf50",
+              textAlign: "center",
+              marginBottom: "12px",
+              fontSize: "14px",
+            }}
+          >
+            {mensaje}
+          </p>
         )}
 
         <button type="submit" className="btn-registrarse" disabled={cargando}>

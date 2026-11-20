@@ -10,13 +10,17 @@ const Header = (props) => {
     <header className="header">
       <div className="header-contenido">
         {/* LOGO */}
-        <div className="logo" onClick={() => navigate("/")} style={{ cursor: "pointer" }}>
+        <div
+          className="logo"
+          onClick={() => navigate("/")}
+          style={{ cursor: "pointer" }}
+        >
           <img src="/img/logo.png" alt="Carri-GO" />
           <h1>Carri-GO</h1>
         </div>
 
         {/* NAVEGACIÓN */}
-        <Nav />
+        <Nav usuario={props.usuario} />
 
         {/* USUARIO */}
         <div className="usuario">
@@ -31,28 +35,6 @@ const Header = (props) => {
               >
                 Hola, {props.usuario.nombre}
               </span>
-
-              {/* Solo para RESTAURANTE */}
-              {props.usuario.rol === "restaurante" && (
-                <button
-                  className="btn-login"
-                  onClick={() => navigate("/MisProductos")}
-                  style={{ marginRight: "8px" }}
-                >
-                  Mis Platos
-                </button>
-              )}
-
-              {/* Solo para REPARTIDOR */}
-              {props.usuario.rol === "repartidor" && (
-                <button
-                  className="btn-login"
-                  onClick={() => navigate("/MiServicio")}
-                  style={{ marginRight: "8px" }}
-                >
-                  Mi Servicio
-                </button>
-              )}
 
               <button className="btn-login" onClick={props.onLogout}>
                 Cerrar sesión

@@ -1,279 +1,124 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import "../styles/components/pages/Encargos.css";
 
-const Encargos = (props) => {
-    return (
-        <main className="encargos-page">
-            <section className="encargos-hero">
-                <img
-                    src="/img/fondodeencargo.jpg"
-                    alt="Servicio de encargos"
-                />
+const Encargos = () => {
+  const [busqueda, setBusqueda] = useState("");
+  const [servicios, setServicios] = useState([]);
+  const [cargando, setCargando] = useState(true);
 
-                <div className="encargos-hero-overlay"></div>
+  useEffect(() => {
+    fetch("http://localhost:3001/api/servicios")
+      .then((res) => res.json())
+      .then((data) => {
+        if (!data.error) {
+          setServicios(data.servicios || []);
+        }
+      })
+      .catch(() => setServicios([]))
+      .finally(() => setCargando(false));
+  }, []);
 
-                <div className="encargos-hero-content">
-                    <h1>
-                        ¿Necesitás que alguien<br />
-                        vaya a buscar algo?
-                    </h1>
+  const iconoVehiculo = (vehiculo) => {
+    const v = (vehiculo || "").toLowerCase();
+    if (v.includes("moto")) return "🏍️";
+    if (v.includes("auto")) return "🚗";
+    if (v.includes("bici")) return "🚲";
+    if (v.includes("pie")) return "🚶";
+    return "📦";
+  };
 
-                    <p>
-                        Contratá un repartidor para realizar tu encargo
-                        de forma rápida y sencilla.
-                    </p>
-                </div>
-            </section>
-            <section className="busqueda-encargos">
-                <div className="busqueda-encargos-box">
+  const serviciosFiltrados = servicios.filter((s) => {
+    const texto = `${s.nombre || ""} ${s.apellido || ""} ${s.zona || ""} ${
+      s.vehiculo || ""
+    }`.toLowerCase();
+    return texto.includes(busqueda.toLowerCase());
+  });
 
-                    <input
-                        type="text"
-                        placeholder="¿Qué necesitás que busquen?"
-                    />
-                </div>
-            </section>
-            <section className="repartidores">
-                <div className="repartidores-grid">
-                    <article className="repartidor">
+  return (
+    <main className="encargos-page">
+      <section className="encargos-hero">
+        <img src="/img/fondodeencargo.jpg" alt="Servicio de encargos" />
+        <div className="encargos-hero-overlay"></div>
+        <div className="encargos-hero-content">
+          <h1>
+            ¿Necesitás que alguien
+            <br />
+            vaya a buscar algo?
+          </h1>
+          <p>
+            Contratá un repartidor para realizar tu encargo de forma rápida y
+            sencilla.
+          </p>
+        </div>
+      </section>
 
-                        <div className="repartidor-foto">
-                            <img
-                                src="/img/repartidor1.jpg"
-                                alt="Juan Pérez"
-                            />
-                        </div>
+      <section className="busqueda-encargos">
+        <div className="busqueda-encargos-box">
+          <input
+            type="text"
+            placeholder="Buscar por zona, nombre o vehículo..."
+            value={busqueda}
+            onChange={(e) => setBusqueda(e.target.value)}
+          />
+        </div>
+      </section>
 
-                        <div className="repartidor-info">
-                            <h3>JUAN PÉREZ</h3>
-
-                            <p>📍 Centro</p>
-                            <p>🏍️ Moto</p>
-
-                            <div className="repartidor-bottom">
-                                <span className="estrellas">
-                                    ★★★★★
-                                </span>
-
-                                <span>15 min</span>
-                            </div>
-
-                            <button className="btn-elegir">
-                                Pedir encargo
-                            </button>
-                        </div>
-
-                    </article>
-                    <article className="repartidor">
-
-                        <div className="repartidor-foto">
-                            <img
-                                src="/img/repartidor2.jpg"
-                                alt="Sofía Gómez"
-                            />
-                        </div>
-
-                        <div className="repartidor-info">
-                            <h3>SOFÍA GÓMEZ</h3>
-
-                            <p>📍 Palermo</p>
-                            <p>🚗 Auto</p>
-
-                            <div className="repartidor-bottom">
-                                <span className="estrellas">
-                                    ★★★★★
-                                </span>
-
-                                <span>20 min</span>
-                            </div>
-
-                            <button className="btn-elegir">
-                               Pedir encargo
-                            </button>
-                        </div>
-
-                    </article>
-                    <article className="repartidor">
-
-                        <div className="repartidor-foto">
-                            <img
-                                src="/img/repartidor3.jpg"
-                                alt="Martín Silva"
-                            />
-                        </div>
-
-                        <div className="repartidor-info">
-                            <h3>MARTÍN SILVA</h3>
-
-                            <p>📍 Belgrano</p>
-                            <p>🏍️ Moto</p>
-
-                            <div className="repartidor-bottom">
-                                <span className="estrellas">
-                                    ★★★★☆
-                                </span>
-
-                                <span>18 min</span>
-                            </div>
-
-                            <button className="btn-elegir">
-                               Pedir encargo
-                            </button>
-                        </div>
-
-                    </article>
-                    <article className="repartidor">
-
-                        <div className="repartidor-foto">
-                            <img
-                                src="/img/repartidor4.jpg"
-                                alt="Camila Ruiz"
-                            />
-                        </div>
-
-                        <div className="repartidor-info">
-                            <h3>CAMILA RUIZ</h3>
-
-                            <p>📍 Caballito</p>
-                            <p>🚲 Bicicleta</p>
-
-                            <div className="repartidor-bottom">
-                                <span className="estrellas">
-                                    ★★★★★
-                                </span>
-
-                                <span>12 min</span>
-                            </div>
-
-                            <button className="btn-elegir">
-                                Pedir encargo
-                            </button>
-                        </div>
-
-                    </article>
-                    <article className="repartidor">
-
-                        <div className="repartidor-foto">
-                            <img
-                                src="/img/repartidor5.jpg"
-                                alt="Diego Martínez"
-                            />
-                        </div>
-
-                        <div className="repartidor-info">
-                            <h3>DIEGO MARTÍNEZ</h3>
-
-                            <p>📍 Flores</p>
-                            <p>🏍️ Moto</p>
-
-                            <div className="repartidor-bottom">
-                                <span className="estrellas">
-                                    ★★★★★
-                                </span>
-
-                                <span>16 min</span>
-                            </div>
-
-                            <button className="btn-elegir">
-                               Pedir encargo
-                            </button>
-                        </div>
-
-                    </article>
-                    <article className="repartidor">
-
-                        <div className="repartidor-foto">
-                            <img
-                                src="/img/repartidor6.jpg"
-                                alt="Valentina López"
-                            />
-                        </div>
-
-                        <div className="repartidor-info">
-                            <h3>VALENTINA LÓPEZ</h3>
-
-                            <p>📍 Almagro</p>
-                            <p>🚗 Auto</p>
-
-                            <div className="repartidor-bottom">
-                                <span className="estrellas">
-                                    ★★★★☆
-                                </span>
-
-                                <span>22 min</span>
-                            </div>
-
-                            <button className="btn-elegir">
-                                Pedir encargo
-                            </button>
-                        </div>
-
-                    </article>
-                    <article className="repartidor">
-
-                        <div className="repartidor-foto">
-                            <img
-                                src="/img/repartidor7.jpg"
-                                alt="Lucas Fernández"
-                            />
-                        </div>
-
-                        <div className="repartidor-info">
-                            <h3>LUCAS FERNÁNDEZ</h3>
-
-                            <p>📍 Villa Crespo</p>
-                            <p>🏍️ Moto</p>
-
-                            <div className="repartidor-bottom">
-                                <span className="estrellas">
-                                    ★★★★★
-                                </span>
-
-                                <span>14 min</span>
-                            </div>
-
-                            <button className="btn-elegir">
-                                Pedir encargo
-                            </button>
-                        </div>
-
-                    </article>
-                    <article className="repartidor">
-
-                        <div className="repartidor-foto">
-                            <img
-                                src="/img/repartidor8.jpg"
-                                alt="Martina Díaz"
-                            />
-                        </div>
-
-                        <div className="repartidor-info">
-                            <h3>MARTINA DÍAZ</h3>
-
-                            <p>📍 Núñez</p>
-                            <p>🚲 Bicicleta</p>
-
-                            <div className="repartidor-bottom">
-                                <span className="estrellas">
-                                    ★★★★★
-                                </span>
-
-                                <span>10 min</span>
-                            </div>
-
-                            <button className="btn-elegir">
-                               Pedir encargo
-                            </button>
-                        </div>
-
-                    </article>
-
+      <section className="repartidores">
+        {cargando ? (
+          <p style={{ textAlign: "center", padding: "40px", color: "#aaa" }}>
+            Cargando repartidores...
+          </p>
+        ) : (
+          <div className="repartidores-grid">
+            {serviciosFiltrados.map((s) => (
+              <article className="repartidor" key={s.id}>
+                <div className="repartidor-foto">
+                  <img
+                    src="/img/repartidor1.jpg"
+                    alt={`${s.nombre} ${s.apellido}`}
+                  />
                 </div>
 
-            </section>
+                <div className="repartidor-info">
+                  <h3>
+                    {(s.nombre || "").toUpperCase()}{" "}
+                    {(s.apellido || "").toUpperCase()}
+                  </h3>
 
-        </main>
-    );
+                  <p>📍 {s.zona || "Zona no especificada"}</p>
+                  <p>
+                    {iconoVehiculo(s.vehiculo)} {s.vehiculo || "Vehículo"}
+                  </p>
+                  {s.capacidad && <p>📦 {s.capacidad}</p>}
+
+                  <div className="repartidor-bottom">
+                    <span className="estrellas">★★★★★</span>
+                    <span>{s.telefono || "Sin teléfono"}</span>
+                  </div>
+
+                  <button className="btn-elegir">Pedir encargo</button>
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
+
+        {!cargando && serviciosFiltrados.length === 0 && (
+          <p
+            style={{
+              textAlign: "center",
+              padding: "40px",
+              color: "#aaa",
+            }}
+          >
+            {servicios.length === 0
+              ? "Todavía no hay repartidores disponibles. ¡Pueden publicar su servicio desde Mi Servicio!"
+              : "No encontramos repartidores con esa búsqueda."}
+          </p>
+        )}
+      </section>
+    </main>
+  );
 };
 
 export default Encargos;
