@@ -69,10 +69,41 @@ async function getOrCreateRestaurante(usuarioId, datos = {}) {
   );
   return insert.rows[0];
 }
+// Actualizar producto
+async function actualizarProducto(id, datos) {
+  const query = `
+    UPDATE productos 
+    SET nombre = $1, 
+        descripcion = $2, 
+        precio = $3, 
+        imagen_url = COALESCE($4, imagen_url)
+    WHERE id = $5
+    RETURNING *
+  `;
+  const values = [
+    datos.nombre,
+    datos.descripcion || null,
+    datos.precio,
+    datos.imagen_url || null,
+    id
+  ];
+  const result = await pool.query(query, values);
+  return result.rows[0];
+}
 
+// Eliminar producto
+async function eliminarProducto(id) {
+  const result = await pool.query(
+    'DELETE FROM productos WHERE id = $1 RETURNING id',
+    [id]
+  );
+  return result.rowCount > 0;
+}
 module.exports = {
   getProductos,
   getProductosByRestaurante,
   crearProducto,
-  getOrCreateRestaurante
+  getOrCreateRestaurante,
+  actualizarProducto,
+  eliminarProducto
 };

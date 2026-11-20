@@ -107,6 +107,55 @@ router.get('/productos', async (req, res) => {
     console.log(error);
     res.status(500).json({ error: true, message: 'Error al obtener productos' });
   }
+  
+});
+// Editar producto
+router.put('/productos/:id', verificarToken, async (req, res) => {
+  try {
+    if (req.usuario.rol !== 'restaurante') {
+      return res.status(403).json({ error: true, message: 'Solo los restaurantes pueden editar productos' });
+    }
+
+    const { nombre, descripcion, precio, imagen_url } = req.body;
+    const productoId = req.params.id;
+
+    const producto = await productosModel.actualizarProducto(productoId, {
+      nombre,
+      descripcion,
+      precio,
+      imagen_url
+    });
+
+    if (!producto) {
+      return res.status(404).json({ error: true, message: 'Producto no encontrado' });
+    }
+
+    res.json({ error: false, message: 'Producto actualizado', producto });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: true, message: 'Error al actualizar el producto' });
+  }
+});
+
+// Eliminar producto
+router.delete('/productos/:id', verificarToken, async (req, res) => {
+  try {
+    if (req.usuario.rol !== 'restaurante') {
+      return res.status(403).json({ error: true, message: 'Solo los restaurantes pueden eliminar productos' });
+    }
+
+    const productoId = req.params.id;
+    const eliminado = await productosModel.eliminarProducto(productoId);
+
+    if (!eliminado) {
+      return res.status(404).json({ error: true, message: 'Producto no encontrado' });
+    }
+
+    res.json({ error: false, message: 'Producto eliminado' });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: true, message: 'Error al eliminar el producto' });
+  }
 });
 
 

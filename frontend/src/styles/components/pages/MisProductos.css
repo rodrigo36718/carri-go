@@ -7,7 +7,7 @@
 }
 
 .mis-productos-hero {
-  padding: 40px 20px 20px;
+  padding: 40px 20px 10px;
   text-align: center;
 }
 
@@ -20,93 +20,106 @@
 .mis-productos-hero p {
   color: #aaa;
   margin: 0;
+  font-size: 15px;
 }
 
 .mis-productos-contenido {
-  max-width: 1000px;
+  max-width: 1100px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 20px 20px 50px;
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 30px;
+  grid-template-columns: 1fr 1.1fr;
+  gap: 32px;
 }
 
-@media (max-width: 800px) {
+@media (max-width: 900px) {
   .mis-productos-contenido {
     grid-template-columns: 1fr;
   }
 }
 
+/* ========== FORMULARIO ========== */
 .form-publicar {
   background-color: #141414;
   border: 1px solid #2a2a2a;
-  border-radius: 12px;
-  padding: 24px;
+  border-radius: 14px;
+  padding: 26px;
+  height: fit-content;
 }
 
 .form-publicar h2 {
-  margin: 0 0 20px;
+  margin: 0 0 22px;
   font-size: 20px;
+  font-weight: 600;
 }
 
 .form-publicar .campo {
-  margin-bottom: 16px;
+  margin-bottom: 18px;
 }
 
 .form-publicar label {
   display: block;
-  margin-bottom: 6px;
+  margin-bottom: 7px;
   font-size: 13px;
-  color: #ccc;
+  color: #bbb;
+  font-weight: 500;
 }
 
 .form-publicar input[type="text"],
 .form-publicar input[type="number"],
-.form-publicar textarea,
-.form-publicar input[type="file"] {
+.form-publicar textarea {
   width: 100%;
   background-color: #101010;
   border: 1px solid #333;
-  border-radius: 8px;
+  border-radius: 9px;
   color: white;
-  padding: 10px 12px;
+  padding: 11px 14px;
   font-size: 14px;
   box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+
+.form-publicar input[type="text"]:focus,
+.form-publicar input[type="number"]:focus,
+.form-publicar textarea:focus {
+  outline: none;
+  border-color: #ff711f;
 }
 
 .form-publicar input[type="text"],
 .form-publicar input[type="number"] {
-  height: 42px;
+  height: 44px;
 }
 
 .form-publicar textarea {
   resize: vertical;
-  min-height: 80px;
+  min-height: 90px;
 }
 
 .preview-imagen {
-  margin-top: 12px;
+  margin-top: 14px;
 }
 
 .preview-imagen img {
   width: 100%;
   max-height: 180px;
   object-fit: cover;
-  border-radius: 8px;
+  border-radius: 10px;
   border: 1px solid #333;
 }
 
 .btn-publicar {
   width: 100%;
-  height: 44px;
+  height: 46px;
   background-color: #ff711f;
   color: white;
   border: none;
-  border-radius: 8px;
-  font-weight: bold;
-  font-size: 14px;
+  border-radius: 9px;
+  font-weight: 600;
+  font-size: 15px;
   cursor: pointer;
   transition: 0.2s;
+  margin-top: 6px;
 }
 
 .btn-publicar:hover {
@@ -114,29 +127,37 @@
 }
 
 .btn-publicar:disabled {
-  opacity: 0.6;
+  opacity: 0.55;
   cursor: not-allowed;
 }
 
 .mensaje-ok {
   color: #4caf50;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
   font-size: 14px;
 }
 
 .mensaje-error {
   color: #ff4d4d;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
   font-size: 14px;
 }
 
+/* ========== PLATOS PUBLICADOS ========== */
 .lista-platos h2 {
-  margin: 0 0 16px;
+  margin: 0 0 18px;
   font-size: 20px;
+  font-weight: 600;
 }
 
 .sin-platos {
-  color: #888;
+  color: #777;
+  font-size: 14px;
+  padding: 28px 16px;
+  text-align: center;
+  background: #141414;
+  border: 1px dashed #2a2a2a;
+  border-radius: 12px;
 }
 
 .platos-grid {
@@ -146,53 +167,85 @@
 
 .plato-card {
   display: flex;
-  gap: 14px;
   background-color: #141414;
   border: 1px solid #2a2a2a;
-  border-radius: 10px;
+  border-radius: 12px;
   overflow: hidden;
+  transition: 0.2s ease;
+}
+
+.plato-card:hover {
+  border-color: #3d3d3d;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
 }
 
 .plato-imagen {
   width: 110px;
   min-width: 110px;
-  height: 90px;
+  background: #1c1c1c;
 }
 
 .plato-imagen img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
 }
 
 .plato-info {
-  padding: 10px 12px 10px 0;
+  padding: 14px 16px;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  flex: 1;
+  min-width: 0;
 }
 
 .plato-info h3 {
-  margin: 0 0 4px;
-  font-size: 15px;
+  margin: 0 0 5px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .plato-info p {
-  margin: 0 0 6px;
+  margin: 0 0 10px;
   font-size: 13px;
-  color: #aaa;
+  color: #999;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
 }
 
 .plato-info strong {
   color: #ff711f;
-  font-size: 15px;
+  font-size: 17px;
+  font-weight: 700;
 }
 
+/* Cuando no hay imagen */
+.plato-card.sin-imagen .plato-info {
+  padding-left: 18px;
+}
+
+/* Acceso restringido */
 .acceso-restringido {
-  padding: 60px 20px;
+  padding: 80px 20px;
   text-align: center;
 }
 
 .acceso-restringido h2 {
   color: #ff711f;
+  margin-bottom: 10px;
+}
+
+.acceso-restringido p {
+  color: #aaa;
 }
