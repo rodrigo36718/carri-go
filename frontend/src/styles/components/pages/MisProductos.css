@@ -1,0 +1,198 @@
+.mis-productos-page {
+  width: 100%;
+  min-height: 100vh;
+  background-color: #090909;
+  color: white;
+  box-sizing: border-box;
+}
+
+.mis-productos-hero {
+  padding: 40px 20px 20px;
+  text-align: center;
+}
+
+.mis-productos-hero h1 {
+  font-size: 32px;
+  margin: 0 0 8px;
+  color: #ff711f;
+}
+
+.mis-productos-hero p {
+  color: #aaa;
+  margin: 0;
+}
+
+.mis-productos-contenido {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+}
+
+@media (max-width: 800px) {
+  .mis-productos-contenido {
+    grid-template-columns: 1fr;
+  }
+}
+
+.form-publicar {
+  background-color: #141414;
+  border: 1px solid #2a2a2a;
+  border-radius: 12px;
+  padding: 24px;
+}
+
+.form-publicar h2 {
+  margin: 0 0 20px;
+  font-size: 20px;
+}
+
+.form-publicar .campo {
+  margin-bottom: 16px;
+}
+
+.form-publicar label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 13px;
+  color: #ccc;
+}
+
+.form-publicar input[type="text"],
+.form-publicar input[type="number"],
+.form-publicar textarea,
+.form-publicar input[type="file"] {
+  width: 100%;
+  background-color: #101010;
+  border: 1px solid #333;
+  border-radius: 8px;
+  color: white;
+  padding: 10px 12px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.form-publicar input[type="text"],
+.form-publicar input[type="number"] {
+  height: 42px;
+}
+
+.form-publicar textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.preview-imagen {
+  margin-top: 12px;
+}
+
+.preview-imagen img {
+  width: 100%;
+  max-height: 180px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #333;
+}
+
+.btn-publicar {
+  width: 100%;
+  height: 44px;
+  background-color: #ff711f;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-publicar:hover {
+  background-color: #ff8a45;
+}
+
+.btn-publicar:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.mensaje-ok {
+  color: #4caf50;
+  margin-bottom: 12px;
+  font-size: 14px;
+}
+
+.mensaje-error {
+  color: #ff4d4d;
+  margin-bottom: 12px;
+  font-size: 14px;
+}
+
+.lista-platos h2 {
+  margin: 0 0 16px;
+  font-size: 20px;
+}
+
+.sin-platos {
+  color: #888;
+}
+
+.platos-grid {
+  display: grid;
+  gap: 14px;
+}
+
+.plato-card {
+  display: flex;
+  gap: 14px;
+  background-color: #141414;
+  border: 1px solid #2a2a2a;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.plato-imagen {
+  width: 110px;
+  min-width: 110px;
+  height: 90px;
+}
+
+.plato-imagen img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.plato-info {
+  padding: 10px 12px 10px 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.plato-info h3 {
+  margin: 0 0 4px;
+  font-size: 15px;
+}
+
+.plato-info p {
+  margin: 0 0 6px;
+  font-size: 13px;
+  color: #aaa;
+}
+
+.plato-info strong {
+  color: #ff711f;
+  font-size: 15px;
+}
+
+.acceso-restringido {
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.acceso-restringido h2 {
+  color: #ff711f;
+}

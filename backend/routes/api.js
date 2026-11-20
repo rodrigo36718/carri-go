@@ -109,20 +109,40 @@ router.get('/productos', async (req, res) => {
   }
 });
 
-// Crear producto (solo rol restaurante)
+
+// Crear producto (solo rol restaurante) + imagen Cloudinary
 router.post('/productos', verificarToken, async (req, res) => {
   try {
     if (req.usuario.rol !== 'restaurante') {
-      return res.status(403).json({ error: true, message: 'Solo los restaurantes pueden publicar productos' });
+      return res.status(403).json({
+        error: true,
+        message: 'Solo los restaurantes pueden publicar productos'
+      });
     }
 
-    const { nombre, descripcion, precio, imagen_url } = req.body;
+    const { nombre, descripcion, precio } = req.body;
 
     if (!nombre || !precio) {
-      return res.status(400).json({ error: true, message: 'Nombre y precio son obligatorios' });
+      return res.status(400).json({
+        error: true,
+        message: 'Nombre y precio son obligatorios'
+      });
     }
 
-    // Aseguramos que el usuario tenga un restaurante
+    let imagen_url = null;
+
+    // Si viene una imagen, la subimos a Cloudinary
+    if (req.files && req.files.imagen) {
+      const cloudinary = require('cloudinary').v2;
+      // Usa CLOUDINARY_URL del .env automáticamente
+
+      const archivo = req.files.imagen;
+      const resultado = await cloudinary.uploader.upload(archivo.tempFilePath, {
+        folder: 'carrigo/productos'
+      });
+      imagen_url = resultado.secure_url;
+    }
+
     const restaurante = await productosModel.getOrCreateRestaurante(req.usuario.id, {
       nombre: req.usuario.nombre + ' Restaurante'
     });
@@ -135,25 +155,17 @@ router.post('/productos', verificarToken, async (req, res) => {
       imagen_url
     });
 
-    res.status(201).json({ error: false, message: 'Producto creado', producto });
+    res.status(201).json({
+      error: false,
+      message: 'Producto creado',
+      producto
+    });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ error: true, message: 'Error al crear el producto' });
-  }
-});
-
-// ======================
-// SERVICIOS DE REPARTIDOR (ENCARGOS)
-// ======================
-
-// Listar servicios disponibles
-router.get('/servicios', async (req, res) => {
-  try {
-    const servicios = await serviciosModel.getServiciosDisponibles();
-    res.json({ error: false, servicios });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ error: true, message: 'Error al obtener servicios' });
+    res.status(500).json({
+      error: true,
+      message: 'Error al crear el producto'
+    });
   }
 });
 

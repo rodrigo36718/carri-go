@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
-import "../styles/components/pages/Delivery.css"; // reutilizamos estilos
+import "../styles/components/pages/MisProductos.css";
 
 const MisProductos = () => {
   const [nombre, setNombre] = useState("");
   const [descripcion, setDescripcion] = useState("");
   const [precio, setPrecio] = useState("");
+  const [imagen, setImagen] = useState(null);
+  const [preview, setPreview] = useState(null);
   const [mensaje, setMensaje] = useState("");
   const [error, setError] = useState(false);
   const [productos, setProductos] = useState([]);
@@ -13,20 +15,26 @@ const MisProductos = () => {
   const token = localStorage.getItem("token");
   const usuario = JSON.parse(localStorage.getItem("usuario") || "null");
 
-  // Cargar productos del restaurante
   useEffect(() => {
     if (usuario?.rol === "restaurante") {
       fetch("http://localhost:3000/api/productos")
         .then((res) => res.json())
         .then((data) => {
           if (!data.error) {
-            // filtramos solo los del restaurante actual (por ahora mostramos todos)
             setProductos(data.productos || []);
           }
         })
         .catch(() => {});
     }
   }, []);
+
+  const handleImagen = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImagen(file);
+      setPreview(URL.createObjectURL(file));
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -35,17 +43,21 @@ const MisProductos = () => {
     setCargando(true);
 
     try {
+      const formData = new FormData();
+      formData.append("nombre", nombre);
+      formData.append("descripcion", descripcion);
+      formData.append("precio", precio);
+      if (imagen) {
+        formData.append("imagen", imagen);
+      }
+
       const res = await fetch("http://localhost:3000/api/productos", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
+          // NO pongas Content-Type: el navegador lo setea solo con FormData
         },
-        body: JSON.stringify({
-          nombre,
-          descripcion,
-          precio: parseFloat(precio),
-        }),
+        body: formData,
       });
 
       const data = await res.json();
@@ -55,11 +67,12 @@ const MisProductos = () => {
         setMensaje(data.message);
       } else {
         setError(false);
-        setMensaje("Producto publicado correctamente");
+        setMensaje("Plato publicado correctamente");
         setNombre("");
         setDescripcion("");
         setPrecio("");
-        // Agregamos el nuevo producto a la lista
+        setImagen(null);
+        setPreview(null);
         setProductos((prev) => [data.producto, ...prev]);
       }
     } catch (err) {
@@ -72,96 +85,115 @@ const MisProductos = () => {
 
   if (!usuario || usuario.rol !== "restaurante") {
     return (
-      <main style={{ padding: "40px", textAlign: "center" }}>
-        <h2>Acceso restringido</h2>
-        <p>Solo los restaurantes pueden acceder a esta sección.</p>
+      <main className="mis-productos-page">
+        <div className="acceso-restringido">
+          <h2>Acceso restringido</h2>
+          <p>Solo los restaurantes pueden acceder a esta sección.</p>
+        </div>
       </main>
     );
   }
 
   return (
-    <main style={{ padding: "30px", maxWidth: "800px", margin: "0 auto" }}>
-      <h2>Publicar un plato</h2>
+    <main className="mis-productos-page">
+      <section className="mis-productos-hero">
+        <h1>Mis Platos</h1>
+        <p>Publicá los platos de tu restaurante</p>
+      </section>
 
-      <form onSubmit={handleSubmit} style={{ marginBottom: "40px" }}>
-        <div className="campo" style={{ marginBottom: "15px" }}>
-          <label>Nombre del plato</label>
-          <input
-            type="text"
-            value={nombre}
-            onChange={(e) => setNombre(e.target.value)}
-            required
-            style={{ width: "100%", height: "42px", padding: "0 12px" }}
-          />
-        </div>
+      <section className="mis-productos-contenido">
+        <div className="form-publicar">
+          <h2>Publicar un plato</h2>
 
-        <div className="campo" style={{ marginBottom: "15px" }}>
-          <label>Descripción</label>
-          <textarea
-            value={descripcion}
-            onChange={(e) => setDescripcion(e.target.value)}
-            rows="3"
-            style={{ width: "100%", padding: "10px" }}
-          />
-        </div>
-
-        <div className="campo" style={{ marginBottom: "15px" }}>
-          <label>Precio</label>
-          <input
-            type="number"
-            value={precio}
-            onChange={(e) => setPrecio(e.target.value)}
-            required
-            min="0"
-            step="100"
-            style={{ width: "100%", height: "42px", padding: "0 12px" }}
-          />
-        </div>
-
-        {mensaje && (
-          <p style={{ color: error ? "#ff4d4d" : "#4caf50", marginBottom: "12px" }}>
-            {mensaje}
-          </p>
-        )}
-
-        <button
-          type="submit"
-          disabled={cargando}
-          style={{
-            backgroundColor: "#ff711f",
-            color: "white",
-            border: "none",
-            padding: "12px 24px",
-            borderRadius: "7px",
-            cursor: "pointer",
-            fontWeight: "bold",
-          }}
-        >
-          {cargando ? "Publicando..." : "Publicar plato"}
-        </button>
-      </form>
-
-      <h3>Mis platos publicados</h3>
-      {productos.length === 0 ? (
-        <p>Todavía no publicaste ningún plato.</p>
-      ) : (
-        <div style={{ display: "grid", gap: "15px" }}>
-          {productos.map((p) => (
-            <div
-              key={p.id}
-              style={{
-                border: "1px solid #333",
-                borderRadius: "8px",
-                padding: "15px",
-                backgroundColor: "#1a1a1a",
-              }}
-            >
-              <strong>{p.nombre}</strong> — ${Number(p.precio).toLocaleString("es-AR")}
-              <p style={{ margin: "5px 0", color: "#aaa" }}>{p.descripcion}</p>
+          <form onSubmit={handleSubmit}>
+            <div className="campo">
+              <label>Nombre del plato</label>
+              <input
+                type="text"
+                value={nombre}
+                onChange={(e) => setNombre(e.target.value)}
+                placeholder="Ej: Hamburguesa especial"
+                required
+              />
             </div>
-          ))}
+
+            <div className="campo">
+              <label>Descripción</label>
+              <textarea
+                value={descripcion}
+                onChange={(e) => setDescripcion(e.target.value)}
+                placeholder="Ingredientes, tamaño, etc."
+                rows="3"
+              />
+            </div>
+
+            <div className="campo">
+              <label>Precio</label>
+              <input
+                type="number"
+                value={precio}
+                onChange={(e) => setPrecio(e.target.value)}
+                placeholder="8500"
+                required
+                min="0"
+                step="100"
+              />
+            </div>
+
+            <div className="campo">
+              <label>Imagen del plato</label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImagen}
+              />
+              {preview && (
+                <div className="preview-imagen">
+                  <img src={preview} alt="Vista previa" />
+                </div>
+              )}
+            </div>
+
+            {mensaje && (
+              <p className={error ? "mensaje-error" : "mensaje-ok"}>
+                {mensaje}
+              </p>
+            )}
+
+            <button type="submit" className="btn-publicar" disabled={cargando}>
+              {cargando ? "Publicando..." : "Publicar plato"}
+            </button>
+          </form>
         </div>
-      )}
+
+        <div className="lista-platos">
+          <h2>Platos publicados</h2>
+
+          {productos.length === 0 ? (
+            <p className="sin-platos">Todavía no publicaste ningún plato.</p>
+          ) : (
+            <div className="platos-grid">
+              {productos.map((p) => (
+                <article className="plato-card" key={p.id}>
+                  <div className="plato-imagen">
+                    <img
+                      src={p.imagen_url || "/img/Hamburguesa2.jpg"}
+                      alt={p.nombre}
+                    />
+                  </div>
+                  <div className="plato-info">
+                    <h3>{p.nombre}</h3>
+                    <p>{p.descripcion || "Sin descripción"}</p>
+                    <strong>
+                      ${Number(p.precio).toLocaleString("es-AR")}
+                    </strong>
+                  </div>
+                </article>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
     </main>
   );
 };
