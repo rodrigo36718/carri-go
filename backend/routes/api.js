@@ -217,18 +217,34 @@ router.post('/productos', verificarToken, async (req, res) => {
     });
   }
 });
-
-// Publicar / actualizar servicio (solo rol repartidor)
+// Listar servicios disponibles (página Encargos)
 router.post('/servicios', verificarToken, async (req, res) => {
   try {
     if (req.usuario.rol !== 'repartidor') {
-      return res.status(403).json({ error: true, message: 'Solo los repartidores pueden publicar servicios' });
+      return res.status(403).json({
+        error: true,
+        message: 'Solo los repartidores pueden publicar servicios'
+      });
     }
 
     const { vehiculo, capacidad, zona, telefono } = req.body;
 
-    if (!vehiculo) {
-      return res.status(400).json({ error: true, message: 'El vehículo es obligatorio' });
+    if (!vehiculo || !capacidad || !zona || !telefono) {
+      return res.status(400).json({
+        error: true,
+        message: 'Todos los campos son obligatorios'
+      });
+    }
+
+    let imagen_url = null;
+
+    if (req.files && req.files.imagen) {
+      const cloudinary = require('cloudinary').v2;
+      const archivo = req.files.imagen;
+      const resultado = await cloudinary.uploader.upload(archivo.tempFilePath, {
+        folder: 'carrigo/repartidores'
+      });
+      imagen_url = resultado.secure_url;
     }
 
     const servicio = await serviciosModel.publicarServicio({
@@ -236,13 +252,21 @@ router.post('/servicios', verificarToken, async (req, res) => {
       vehiculo,
       capacidad,
       zona,
-      telefono
+      telefono,
+      imagen_url
     });
 
-    res.status(201).json({ error: false, message: 'Servicio publicado', servicio });
+    res.status(201).json({
+      error: false,
+      message: 'Servicio publicado',
+      servicio
+    });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ error: true, message: 'Error al publicar el servicio' });
+    res.status(500).json({
+      error: true,
+      message: 'Error al publicar el servicio'
+    });
   }
 });
 

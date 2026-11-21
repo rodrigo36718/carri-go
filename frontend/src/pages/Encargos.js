@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from "react";
 import "../styles/components/pages/Encargos.css";
 
+const API = "http://localhost:3001";
+
 const Encargos = () => {
   const [busqueda, setBusqueda] = useState("");
   const [servicios, setServicios] = useState([]);
   const [cargando, setCargando] = useState(true);
 
   useEffect(() => {
-    fetch("http://localhost:3001/api/servicios")
+    fetch(`${API}/api/servicios`)
       .then((res) => res.json())
       .then((data) => {
         if (!data.error) {
@@ -74,14 +76,14 @@ const Encargos = () => {
               <article className="repartidor" key={s.id}>
                 <div className="repartidor-foto">
                   <img
-                    src="/img/repartidor1.jpg"
-                    alt={`${s.nombre} ${s.apellido}`}
+                    src={s.imagen_url || "/img/repartidor1.jpg"}
+                    alt={`${s.nombre || ""} ${s.apellido || ""}`}
                   />
                 </div>
 
                 <div className="repartidor-info">
                   <h3>
-                    {(s.nombre || "").toUpperCase()}{" "}
+                    {(s.nombre || "Repartidor").toUpperCase()}{" "}
                     {(s.apellido || "").toUpperCase()}
                   </h3>
 
@@ -112,7 +114,7 @@ const Encargos = () => {
             }}
           >
             {servicios.length === 0
-              ? "Todavía no hay repartidores disponibles. ¡Pueden publicar su servicio desde Mi Servicio!"
+              ? "Todavía no hay repartidores disponibles."
               : "No encontramos repartidores con esa búsqueda."}
           </p>
         )}
