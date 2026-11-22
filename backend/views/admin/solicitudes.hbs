@@ -1,0 +1,53 @@
+<header class="admin-header">
+  <h1>Panel Admin — Carri-GO</h1>
+  <div>
+    <span style="color:#aaa; margin-right:16px;">{{admin.email}}</span>
+    <a href="/admin/login/logout">Cerrar sesión</a>
+  </div>
+</header>
+
+<div class="container">
+  {{#if error}}
+    <p class="error">{{error}}</p>
+  {{/if}}
+
+  <h2>Platos pendientes</h2>
+  {{#if productos.length}}
+    {{#each productos}}
+      <div class="card">
+        <div>
+          <strong>{{nombre}}</strong>
+          <p class="meta">{{descripcion}}</p>
+          <p class="meta" style="color:#ff711f;">
+            ${{precio}} — {{restaurante_nombre}}
+          </p>
+        </div>
+        <div class="acciones">
+          <a class="btn-ok" href="/admin/productos/{{id}}/aprobar">Aprobar</a>
+          <a class="btn-no" href="/admin/productos/{{id}}/rechazar">Rechazar</a>
+        </div>
+      </div>
+    {{/each}}
+  {{else}}
+    <p class="vacio">No hay platos pendientes.</p>
+  {{/if}}
+
+  <h2>Servicios de repartidor pendientes</h2>
+  {{#if servicios.length}}
+    {{#each servicios}}
+      <div class="card">
+        <div>
+          <strong>{{nombre}} {{apellido}}</strong>
+          <p class="meta">📍 {{zona}} · {{vehiculo}} · 📦 {{capacidad}}</p>
+          <p class="meta">Tel: {{telefono}} · {{email}}</p>
+        </div>
+        <div class="acciones">
+          <a class="btn-ok" href="/admin/servicios/{{id}}/aprobar">Aprobar</a>
+          <a class="btn-no" href="/admin/servicios/{{id}}/rechazar">Rechazar</a>
+        </div>
+      </div>
+    {{/each}}
+  {{else}}
+    <p class="vacio">No hay servicios pendientes.</p>
+  {{/if}}
+</div>

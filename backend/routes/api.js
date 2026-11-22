@@ -30,7 +30,7 @@ function verificarToken(req, res, next) {
 // ======================
 router.post('/register', async (req, res) => {
   try {
-    const { nombre, apellido, email, password, telefono, rol } = req.body;
+    const { nombre, apellido, email, password, telefono, rol, modalidad_delivery, modalidad_encargos } = req.body;
 
     if (!nombre || !apellido || !email || !password) {
       return res.status(400).json({ error: true, message: 'Faltan datos obligatorios' });
@@ -42,7 +42,14 @@ router.post('/register', async (req, res) => {
     }
 
     const nuevoUsuario = await usuariosModel.registrarUsuario({
-      nombre, apellido, email, password, telefono, rol: rol || 'cliente'
+      nombre,
+      apellido,
+      email,
+      password,
+      telefono,
+      rol: rol || 'cliente',
+      modalidad_delivery: modalidad_delivery || false,
+      modalidad_encargos: modalidad_encargos || false
     });
 
     res.status(201).json({
@@ -107,57 +114,7 @@ router.get('/productos', async (req, res) => {
     console.log(error);
     res.status(500).json({ error: true, message: 'Error al obtener productos' });
   }
-  
 });
-// Editar producto
-router.put('/productos/:id', verificarToken, async (req, res) => {
-  try {
-    if (req.usuario.rol !== 'restaurante') {
-      return res.status(403).json({ error: true, message: 'Solo los restaurantes pueden editar productos' });
-    }
-
-    const { nombre, descripcion, precio, imagen_url } = req.body;
-    const productoId = req.params.id;
-
-    const producto = await productosModel.actualizarProducto(productoId, {
-      nombre,
-      descripcion,
-      precio,
-      imagen_url
-    });
-
-    if (!producto) {
-      return res.status(404).json({ error: true, message: 'Producto no encontrado' });
-    }
-
-    res.json({ error: false, message: 'Producto actualizado', producto });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ error: true, message: 'Error al actualizar el producto' });
-  }
-});
-
-// Eliminar producto
-router.delete('/productos/:id', verificarToken, async (req, res) => {
-  try {
-    if (req.usuario.rol !== 'restaurante') {
-      return res.status(403).json({ error: true, message: 'Solo los restaurantes pueden eliminar productos' });
-    }
-
-    const productoId = req.params.id;
-    const eliminado = await productosModel.eliminarProducto(productoId);
-
-    if (!eliminado) {
-      return res.status(404).json({ error: true, message: 'Producto no encontrado' });
-    }
-
-    res.json({ error: false, message: 'Producto eliminado' });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ error: true, message: 'Error al eliminar el producto' });
-  }
-});
-
 
 // Crear producto (solo rol restaurante) + imagen Cloudinary
 router.post('/productos', verificarToken, async (req, res) => {
@@ -183,7 +140,6 @@ router.post('/productos', verificarToken, async (req, res) => {
     // Si viene una imagen, la subimos a Cloudinary
     if (req.files && req.files.imagen) {
       const cloudinary = require('cloudinary').v2;
-      // Usa CLOUDINARY_URL del .env automáticamente
 
       const archivo = req.files.imagen;
       const resultado = await cloudinary.uploader.upload(archivo.tempFilePath, {
@@ -217,7 +173,23 @@ router.post('/productos', verificarToken, async (req, res) => {
     });
   }
 });
-// Listar servicios disponibles (página Encargos)
+
+// ======================
+// SERVICIOS DE REPARTIDOR (ENCARGOS)
+// ======================
+
+// Listar servicios disponibles (página Encargos + recarga de Mi Servicio)
+router.get('/servicios', async (req, res) => {
+  try {
+    const servicios = await serviciosModel.getServiciosDisponibles();
+    res.json({ error: false, servicios });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: true, message: 'Error al obtener servicios' });
+  }
+});
+
+// Publicar / actualizar servicio (solo rol repartidor)
 router.post('/servicios', verificarToken, async (req, res) => {
   try {
     if (req.usuario.rol !== 'repartidor') {
@@ -229,20 +201,21 @@ router.post('/servicios', verificarToken, async (req, res) => {
 
     const { vehiculo, capacidad, zona, telefono } = req.body;
 
-    if (!vehiculo || !capacidad || !zona || !telefono) {
+    if (!vehiculo) {
       return res.status(400).json({
         error: true,
-        message: 'Todos los campos son obligatorios'
+        message: 'El vehículo es obligatorio'
       });
     }
 
     let imagen_url = null;
 
+    // Subir imagen a Cloudinary si viene
     if (req.files && req.files.imagen) {
       const cloudinary = require('cloudinary').v2;
       const archivo = req.files.imagen;
       const resultado = await cloudinary.uploader.upload(archivo.tempFilePath, {
-        folder: 'carrigo/repartidores'
+        folder: 'carrigo/servicios'
       });
       imagen_url = resultado.secure_url;
     }

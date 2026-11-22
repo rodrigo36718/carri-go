@@ -1,41 +1,52 @@
 var express = require('express');
 var router = express.Router();
-var usuariosModel = require('./../../models/usuariosModel');
+var usuariosModel = require('../../models/usuariosModel');
 
-/* GET home page. */
-router.get('/', function (req, res, next) {
-  res.render('admin/login', { //login.hbs
-    layout: 'admin/layout'    //layout.hbs
+router.get('/', function (req, res) {
+  if (req.session && req.session.admin) {
+    return res.redirect('/admin');
+  }
+  res.render('admin/login', {
+    layout: 'admin/layout',
+    error: false
   });
 });
 
-router.get('/logout', function (req, res, next) {
-  req.session.destroy();
-  res.render('admin/login', { //login.hbs
-    layout: 'admin/layout'    //layout.hbs
-  });
-});
-
-router.post('/', async (req, res, next) => {
+router.post('/', async function (req, res) {
   try {
-    var usuario = req.body.usuario; //captura los datos del formulario
-    var password = req.body.password; //1234
+    const email = req.body.email || req.body.usuario;
+    const password = req.body.password;
 
-    var data = await usuariosModel.getUserByUsernameAndPassword(usuario, password);
+    const usuario = await usuariosModel.validarLogin(email, password);
 
-    if (data != undefined) {
-      req.session.id_usuario = data.id;
-      req.session.nombre = data.usuario;
-      res.redirect('/admin/novedades');
-    } else {
-      res.render('admin/login', {
+    if (!usuario || usuario.rol !== 'admin') {
+      return res.render('admin/login', {
         layout: 'admin/layout',
-        error: true
+        error: true,
+        message: 'Email o contraseña incorrectos, o no sos administrador'
       });
     }
+
+    req.session.admin = {
+      id: usuario.id,
+      nombre: usuario.nombre,
+      email: usuario.email
+    };
+
+    res.redirect('/admin');
   } catch (error) {
     console.log(error);
+    res.render('admin/login', {
+      layout: 'admin/layout',
+      error: true,
+      message: 'Error al iniciar sesión'
+    });
   }
-})
+});
+
+router.get('/logout', function (req, res) {
+  req.session.destroy();
+  res.redirect('/admin/login');
+});
 
 module.exports = router;

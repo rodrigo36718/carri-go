@@ -1,15 +1,18 @@
-<div class="login">
-  <div class="login-triangle"></div>
-  
-  <h2 class="login-header">Log in</h2>
+<div class="login-box">
+  <h1>Admin Carri-GO</h1>
+  <p class="sub">Ingresá con tu Gmail de administrador</p>
 
-  <form action="/admin/login" method="post" class="login-container">
-    <p><input type="text" id="inputUser" placeholder="Usuario" name="usuario"></p>
-    <p><input type="password" id="inputPassword" placeholder="Contraseña" name="password"></p>
-    <p><input type="submit" value="Ingresar"></p>
-  </form>
   {{#if error}}
-    <p>Usuario y/o Contraseña incorrectos</p>
+    <p class="error">{{#if message}}{{message}}{{else}}Datos incorrectos{{/if}}</p>
   {{/if}}
- </div>
-  
+
+  <form action="/admin/login" method="POST">
+    <label>Email</label>
+    <input type="email" name="email" required placeholder="tu@gmail.com" />
+
+    <label>Contraseña</label>
+    <input type="password" name="password" required />
+
+    <button type="submit">Ingresar</button>
+  </form>
+</div>

@@ -276,3 +276,12 @@
     }
 
 }
+.repartidor-telefono {
+  margin: 8px 0 12px;
+  font-size: 14px;
+  color: #ccc;
+}
+
+.repartidor-bottom {
+  margin-bottom: 4px;
+}

@@ -93,12 +93,16 @@ const Encargos = () => {
                   </p>
                   {s.capacidad && <p>📦 {s.capacidad}</p>}
 
-                  <div className="repartidor-bottom">
-                    <span className="estrellas">★★★★★</span>
-                    <span>{s.telefono || "Sin teléfono"}</span>
-                  </div>
+                  {s.telefono && (
+                  <p className="repartidor-telefono">
+                    📞 Tel: {s.telefono}
+                 </p>
+                )}
+                <div className="repartidor-bottom">
+                  <span className="estrellas">★★★★★</span>
+                </div>
 
-                  <button className="btn-elegir">Pedir encargo</button>
+                 <button className="btn-elegir">Pedir encargo</button>
                 </div>
               </article>
             ))}
