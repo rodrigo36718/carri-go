@@ -1,7 +1,7 @@
 <header class="admin-header">
   <h1>Panel Admin — Carri-GO</h1>
-  <div>
-    <span style="color:#aaa; margin-right:16px;">{{admin.email}}</span>
+  <div class="admin-user">
+    <span>{{admin.email}}</span>
     <a href="/admin/login/logout">Cerrar sesión</a>
   </div>
 </header>
@@ -11,43 +11,69 @@
     <p class="error">{{error}}</p>
   {{/if}}
 
-  <h2>Platos pendientes</h2>
-  {{#if productos.length}}
-    {{#each productos}}
-      <div class="card">
+  <div class="secciones">
+    <!-- ========== SECCIÓN DELIVERY ========== -->
+    <section class="seccion seccion-delivery">
+      <div class="seccion-header">
         <div>
-          <strong>{{nombre}}</strong>
-          <p class="meta">{{descripcion}}</p>
-          <p class="meta" style="color:#ff711f;">
-            ${{precio}} — {{restaurante_nombre}}
-          </p>
+          <span class="badge badge-delivery">Delivery</span>
+          <h2>Platos pendientes</h2>
         </div>
-        <div class="acciones">
-          <a class="btn-ok" href="/admin/productos/{{id}}/aprobar">Aprobar</a>
-          <a class="btn-no" href="/admin/productos/{{id}}/rechazar">Rechazar</a>
-        </div>
+        <span class="contador">{{productos.length}}</span>
       </div>
-    {{/each}}
-  {{else}}
-    <p class="vacio">No hay platos pendientes.</p>
-  {{/if}}
 
-  <h2>Servicios de repartidor pendientes</h2>
-  {{#if servicios.length}}
-    {{#each servicios}}
-      <div class="card">
+      {{#if productos.length}}
+        <div class="lista-cards">
+          {{#each productos}}
+            <div class="card">
+              <div class="card-info">
+                <strong>{{nombre}}</strong>
+                {{#if descripcion}}
+                  <p class="meta">{{descripcion}}</p>
+                {{/if}}
+                <p class="precio">${{precio}} · {{restaurante_nombre}}</p>
+              </div>
+              <div class="acciones">
+                <a class="btn-ok" href="/admin/productos/{{id}}/aprobar">Aprobar</a>
+                <a class="btn-no" href="/admin/productos/{{id}}/rechazar">Rechazar</a>
+              </div>
+            </div>
+          {{/each}}
+        </div>
+      {{else}}
+        <p class="vacio">No hay platos pendientes de aprobación.</p>
+      {{/if}}
+    </section>
+
+    <!-- ========== SECCIÓN ENCARGOS ========== -->
+    <section class="seccion seccion-encargos">
+      <div class="seccion-header">
         <div>
-          <strong>{{nombre}} {{apellido}}</strong>
-          <p class="meta">📍 {{zona}} · {{vehiculo}} · 📦 {{capacidad}}</p>
-          <p class="meta">Tel: {{telefono}} · {{email}}</p>
+          <span class="badge badge-encargos">Encargos</span>
+          <h2>Servicios de repartidor pendientes</h2>
         </div>
-        <div class="acciones">
-          <a class="btn-ok" href="/admin/servicios/{{id}}/aprobar">Aprobar</a>
-          <a class="btn-no" href="/admin/servicios/{{id}}/rechazar">Rechazar</a>
-        </div>
+        <span class="contador">{{servicios.length}}</span>
       </div>
-    {{/each}}
-  {{else}}
-    <p class="vacio">No hay servicios pendientes.</p>
-  {{/if}}
+
+      {{#if servicios.length}}
+        <div class="lista-cards">
+          {{#each servicios}}
+            <div class="card">
+              <div class="card-info">
+                <strong>{{nombre}} {{apellido}}</strong>
+                <p class="meta">📍 {{zona}} · {{vehiculo}} · 📦 {{capacidad}}</p>
+                <p class="meta">Tel: {{telefono}}</p>
+              </div>
+              <div class="acciones">
+                <a class="btn-ok" href="/admin/servicios/{{id}}/aprobar">Aprobar</a>
+                <a class="btn-no" href="/admin/servicios/{{id}}/rechazar">Rechazar</a>
+              </div>
+            </div>
+          {{/each}}
+        </div>
+      {{else}}
+        <p class="vacio">No hay servicios pendientes de aprobación.</p>
+      {{/if}}
+    </section>
+  </div>
 </div>

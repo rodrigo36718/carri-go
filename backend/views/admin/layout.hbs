@@ -5,92 +5,259 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin Carri-GO</title>
   <style>
-    * { box-sizing: border-box; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
-      margin: 0;
-      font-family: system-ui, sans-serif;
-      background: #0d0d0d;
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #0a0a0a;
       color: #fff;
       min-height: 100vh;
     }
+
     a { color: #ff711f; text-decoration: none; }
+
+    /* ===== LOGIN ===== */
     .login-box {
       max-width: 400px;
       margin: 80px auto;
-      background: #151515;
-      border: 1px solid #333;
-      border-radius: 12px;
+      background: #141414;
+      border: 1px solid #2a2a2a;
+      border-radius: 14px;
       padding: 32px;
     }
-    .login-box h1 { color: #ff711f; margin-top: 0; }
-    .sub { color: #888; margin-bottom: 20px; }
-    label { display: block; margin: 12px 0 6px; color: #aaa; font-size: 14px; }
+    .login-box h1 { color: #ff711f; margin-bottom: 6px; font-size: 24px; }
+    .sub { color: #888; margin-bottom: 24px; font-size: 14px; }
+    label { display: block; margin: 14px 0 6px; color: #aaa; font-size: 13px; }
     input {
       width: 100%;
       height: 44px;
-      padding: 0 12px;
+      padding: 0 14px;
       background: #1a1a1a;
       border: 1px solid #333;
-      border-radius: 8px;
+      border-radius: 9px;
       color: white;
+      font-size: 14px;
     }
+    input:focus { outline: none; border-color: #ff711f; }
     button {
       width: 100%;
-      margin-top: 20px;
-      height: 44px;
+      margin-top: 22px;
+      height: 46px;
       border: none;
-      border-radius: 8px;
+      border-radius: 9px;
       background: #ff711f;
       color: white;
       font-weight: 700;
+      font-size: 15px;
       cursor: pointer;
     }
-    .error { color: #ff6b6b; background: rgba(255,107,107,0.1); padding: 10px; border-radius: 8px; }
+    button:hover { background: #ff8a45; }
+    .error {
+      color: #ff6b6b;
+      background: rgba(255,107,107,0.1);
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      font-size: 14px;
+    }
+
+    /* ===== HEADER ===== */
     header.admin-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 16px 24px;
+      padding: 16px 28px;
       background: #111;
       border-bottom: 1px solid #222;
     }
-    header.admin-header h1 { margin: 0; font-size: 20px; color: #ff711f; }
-    .container { max-width: 1000px; margin: 0 auto; padding: 24px; }
+    header.admin-header h1 {
+      margin: 0;
+      font-size: 18px;
+      color: #ff711f;
+      font-weight: 700;
+    }
+    .admin-user {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .admin-user span {
+      color: #888;
+      font-size: 13px;
+    }
+    .admin-user a {
+      color: #ff711f;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    /* ===== CONTENEDOR ===== */
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 28px 24px 50px;
+    }
+
+    /* ===== SECCIONES LADO A LADO ===== */
+    .secciones {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    @media (max-width: 850px) {
+      .secciones {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .seccion {
+      background: #121212;
+      border: 1px solid #252525;
+      border-radius: 14px;
+      padding: 22px;
+      min-height: 280px;
+    }
+
+    .seccion-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 18px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid #2a2a2a;
+    }
+
+    .seccion-header h2 {
+      margin: 6px 0 0;
+      font-size: 17px;
+      font-weight: 600;
+    }
+
+    .badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    .badge-delivery {
+      background: rgba(255, 113, 31, 0.15);
+      color: #ff711f;
+    }
+
+    .badge-encargos {
+      background: rgba(66, 165, 245, 0.15);
+      color: #42a5f5;
+    }
+
+    .contador {
+      background: #1f1f1f;
+      color: #aaa;
+      font-size: 13px;
+      font-weight: 700;
+      min-width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      border: 1px solid #333;
+    }
+
+    /* ===== CARDS ===== */
+    .lista-cards {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
     .card {
-      background: #151515;
-      border: 1px solid #2a2a2a;
-      border-radius: 12px;
-      padding: 16px;
-      margin-bottom: 12px;
+      background: #1a1a1a;
+      border: 1px solid #2d2d2d;
+      border-radius: 11px;
+      padding: 14px 16px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 16px;
+      gap: 14px;
       flex-wrap: wrap;
+      transition: border-color 0.2s;
     }
-    .card strong { font-size: 16px; }
-    .meta { color: #888; font-size: 13px; margin: 4px 0 0; }
-    .acciones { display: flex; gap: 8px; }
+
+    .card:hover {
+      border-color: #3d3d3d;
+    }
+
+    .card-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .card strong {
+      font-size: 15px;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .meta {
+      color: #888;
+      font-size: 13px;
+      margin: 2px 0;
+      line-height: 1.4;
+    }
+
+    .precio {
+      color: #ff711f;
+      font-size: 14px;
+      font-weight: 600;
+      margin-top: 6px;
+    }
+
+    .acciones {
+      display: flex;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
     .btn-ok {
       background: #2e7d32;
-      color: white;
+      color: white !important;
       border: none;
-      padding: 10px 14px;
+      padding: 9px 14px;
       border-radius: 8px;
-      cursor: pointer;
       font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      transition: background 0.2s;
     }
+    .btn-ok:hover { background: #388e3c; }
+
     .btn-no {
-      background: #c62828;
-      color: white;
-      border: none;
-      padding: 10px 14px;
+      background: transparent;
+      color: #ef5350 !important;
+      border: 1px solid #ef535055;
+      padding: 9px 14px;
       border-radius: 8px;
-      cursor: pointer;
       font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
     }
-    h2 { margin-top: 28px; margin-bottom: 12px; font-size: 18px; }
-    .vacio { color: #666; }
+    .btn-no:hover {
+      background: rgba(239, 83, 80, 0.1);
+      border-color: #ef5350;
+    }
+
+    .vacio {
+      color: #555;
+      font-size: 14px;
+      text-align: center;
+      padding: 30px 10px;
+    }
   </style>
 </head>
 <body>

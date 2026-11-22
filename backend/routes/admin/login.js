@@ -1,29 +1,39 @@
 var express = require('express');
 var router = express.Router();
 var usuariosModel = require('../../models/usuariosModel');
+var bcrypt = require('bcrypt');
 
 router.get('/', function (req, res) {
-  if (req.session && req.session.admin) {
-    return res.redirect('/admin');
-  }
   res.render('admin/login', {
-    layout: 'admin/layout',
-    error: false
+    layout: 'admin/layout'
   });
 });
 
-router.post('/', async function (req, res) {
+router.get('/logout', function (req, res) {
+  req.session.destroy();
+  res.redirect('/admin/login');
+});
+
+router.post('/', async (req, res) => {
   try {
     const email = req.body.email || req.body.usuario;
     const password = req.body.password;
 
-    const usuario = await usuariosModel.validarLogin(email, password);
+    const usuario = await usuariosModel.getUsuarioByEmail(email);
 
     if (!usuario || usuario.rol !== 'admin') {
       return res.render('admin/login', {
         layout: 'admin/layout',
-        error: true,
-        message: 'Email o contraseña incorrectos, o no sos administrador'
+        error: true
+      });
+    }
+
+    const passwordOk = await bcrypt.compare(password, usuario.password);
+
+    if (!passwordOk) {
+      return res.render('admin/login', {
+        layout: 'admin/layout',
+        error: true
       });
     }
 
@@ -38,15 +48,9 @@ router.post('/', async function (req, res) {
     console.log(error);
     res.render('admin/login', {
       layout: 'admin/layout',
-      error: true,
-      message: 'Error al iniciar sesión'
+      error: true
     });
   }
-});
-
-router.get('/logout', function (req, res) {
-  req.session.destroy();
-  res.redirect('/admin/login');
 });
 
 module.exports = router;

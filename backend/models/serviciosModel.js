@@ -1,18 +1,19 @@
 const pool = require('./bd');
 
+// Solo servicios APROBADOS (para Encargos)
 async function getServiciosDisponibles() {
   const query = `
     SELECT s.*, u.nombre, u.apellido
     FROM servicios_repartidor s
     JOIN usuarios u ON u.id = s.repartidor_id
-    WHERE s.disponible = true
-      AND s.aprobado = true
+    WHERE s.disponible = true AND s.estado = 'aprobado'
     ORDER BY s.created_at DESC
   `;
   const result = await pool.query(query);
   return result.rows;
 }
 
+// Publicar / actualizar servicio (siempre queda pendiente)
 async function publicarServicio(datos) {
   const existente = await pool.query(
     'SELECT id FROM servicios_repartidor WHERE repartidor_id = $1',
@@ -27,7 +28,8 @@ async function publicarServicio(datos) {
         zona = $3,
         telefono = $4,
         disponible = $5,
-        imagen_url = COALESCE($6, imagen_url)
+        imagen_url = COALESCE($6, imagen_url),
+        estado = 'pendiente'
       WHERE repartidor_id = $7
       RETURNING *
     `;
@@ -45,8 +47,8 @@ async function publicarServicio(datos) {
 
   const query = `
     INSERT INTO servicios_repartidor
-      (repartidor_id, vehiculo, capacidad, zona, telefono, disponible, imagen_url)
-    VALUES ($1, $2, $3, $4, $5, $6, $7)
+      (repartidor_id, vehiculo, capacidad, zona, telefono, disponible, imagen_url, estado)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, 'pendiente')
     RETURNING *
   `;
   const result = await pool.query(query, [
@@ -69,8 +71,32 @@ async function getServicioByRepartidor(repartidorId) {
   return result.rows[0];
 }
 
+// ========== ADMIN ==========
+
+async function getServiciosPendientes() {
+  const query = `
+    SELECT s.*, u.nombre, u.apellido
+    FROM servicios_repartidor s
+    JOIN usuarios u ON u.id = s.repartidor_id
+    WHERE s.estado = 'pendiente'
+    ORDER BY s.created_at DESC
+  `;
+  const result = await pool.query(query);
+  return result.rows;
+}
+
+async function actualizarEstadoServicio(id, estado) {
+  const result = await pool.query(
+    `UPDATE servicios_repartidor SET estado = $1 WHERE id = $2 RETURNING *`,
+    [estado, id]
+  );
+  return result.rows[0];
+}
+
 module.exports = {
   getServiciosDisponibles,
   publicarServicio,
-  getServicioByRepartidor
+  getServicioByRepartidor,
+  getServiciosPendientes,
+  actualizarEstadoServicio
 };

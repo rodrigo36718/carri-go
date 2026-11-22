@@ -1,21 +1,21 @@
 const pool = require('./bd');
 
-// Listar todos los productos disponibles (para Delivery)
+// Solo productos APROBADOS (para Delivery)
 async function getProductos() {
   const query = `
     SELECT p.*, r.nombre as restaurante_nombre
     FROM productos p
     JOIN restaurantes r ON r.id = p.restaurante_id
-    WHERE p.disponible = true
-      AND r.activo = true
-      AND p.aprobado = true
+    WHERE p.disponible = true 
+      AND r.activo = true 
+      AND p.estado = 'aprobado'
     ORDER BY p.created_at DESC
   `;
   const result = await pool.query(query);
   return result.rows;
 }
 
-// Listar productos de un restaurante específico
+// Productos de un restaurante (todos, para MisProductos)
 async function getProductosByRestaurante(restauranteId) {
   const query = `
     SELECT * FROM productos 
@@ -26,11 +26,14 @@ async function getProductosByRestaurante(restauranteId) {
   return result.rows;
 }
 
-// Crear un producto (solo restaurante)
+// Crear producto → siempre queda PENDIENTE
 async function crearProducto(producto) {
   const query = `
-    INSERT INTO productos (restaurante_id, nombre, descripcion, precio, imagen_url, disponible)
-    VALUES ($1, $2, $3, $4, $5, $6)
+    INSERT INTO productos (
+      restaurante_id, nombre, descripcion, precio, 
+      imagen_url, disponible, estado
+    )
+    VALUES ($1, $2, $3, $4, $5, $6, 'pendiente')
     RETURNING *
   `;
   const values = [
@@ -45,9 +48,7 @@ async function crearProducto(producto) {
   return result.rows[0];
 }
 
-// Buscar o crear el restaurante del usuario
 async function getOrCreateRestaurante(usuarioId, datos = {}) {
-  // Primero buscamos si ya tiene restaurante
   let result = await pool.query(
     'SELECT * FROM restaurantes WHERE usuario_id = $1',
     [usuarioId]
@@ -57,7 +58,6 @@ async function getOrCreateRestaurante(usuarioId, datos = {}) {
     return result.rows[0];
   }
 
-  // Si no tiene, lo creamos
   const insert = await pool.query(
     `INSERT INTO restaurantes (usuario_id, nombre, descripcion, telefono)
      VALUES ($1, $2, $3, $4)
@@ -71,7 +71,7 @@ async function getOrCreateRestaurante(usuarioId, datos = {}) {
   );
   return insert.rows[0];
 }
-// Actualizar producto
+
 async function actualizarProducto(id, datos) {
   const query = `
     UPDATE productos 
@@ -93,7 +93,6 @@ async function actualizarProducto(id, datos) {
   return result.rows[0];
 }
 
-// Eliminar producto
 async function eliminarProducto(id) {
   const result = await pool.query(
     'DELETE FROM productos WHERE id = $1 RETURNING id',
@@ -101,11 +100,36 @@ async function eliminarProducto(id) {
   );
   return result.rowCount > 0;
 }
+
+// ========== ADMIN ==========
+
+async function getProductosPendientes() {
+  const query = `
+    SELECT p.*, r.nombre as restaurante_nombre
+    FROM productos p
+    JOIN restaurantes r ON r.id = p.restaurante_id
+    WHERE p.estado = 'pendiente'
+    ORDER BY p.created_at DESC
+  `;
+  const result = await pool.query(query);
+  return result.rows;
+}
+
+async function actualizarEstadoProducto(id, estado) {
+  const result = await pool.query(
+    `UPDATE productos SET estado = $1 WHERE id = $2 RETURNING *`,
+    [estado, id]
+  );
+  return result.rows[0];
+}
+
 module.exports = {
   getProductos,
   getProductosByRestaurante,
   crearProducto,
   getOrCreateRestaurante,
   actualizarProducto,
-  eliminarProducto
+  eliminarProducto,
+  getProductosPendientes,
+  actualizarEstadoProducto
 };
