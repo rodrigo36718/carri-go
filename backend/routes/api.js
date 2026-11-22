@@ -259,5 +259,83 @@ router.get('/', (req, res) => {
     ]
   });
 });
+// ======================
+// ADMIN – APROBACIONES
+// ======================
+
+function soloAdmin(req, res, next) {
+  if (req.usuario.rol !== 'admin') {
+    return res.status(403).json({ error: true, message: 'Solo admin' });
+  }
+  next();
+}
+
+// Listar pendientes
+router.get('/admin/pendientes', verificarToken, soloAdmin, async (req, res) => {
+  try {
+    const pool = require('../models/bd');
+
+    const productos = await pool.query(`
+      SELECT p.*, r.nombre as restaurante_nombre
+      FROM productos p
+      JOIN restaurantes r ON r.id = p.restaurante_id
+      WHERE p.aprobado = false
+      ORDER BY p.created_at DESC
+    `);
+
+    const servicios = await pool.query(`
+      SELECT s.*, u.nombre, u.apellido
+      FROM servicios_repartidor s
+      JOIN usuarios u ON u.id = s.repartidor_id
+      WHERE s.aprobado = false
+      ORDER BY s.created_at DESC
+    `);
+
+    res.json({
+      error: false,
+      productos: productos.rows,
+      servicios: servicios.rows
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: true, message: 'Error al listar pendientes' });
+  }
+});
+
+// Aprobar producto
+router.put('/admin/productos/:id/aprobar', verificarToken, soloAdmin, async (req, res) => {
+  try {
+    const pool = require('../models/bd');
+    const result = await pool.query(
+      'UPDATE productos SET aprobado = true WHERE id = $1 RETURNING *',
+      [req.params.id]
+    );
+    if (!result.rows[0]) {
+      return res.status(404).json({ error: true, message: 'Producto no encontrado' });
+    }
+    res.json({ error: false, message: 'Producto aprobado', producto: result.rows[0] });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: true, message: 'Error al aprobar' });
+  }
+});
+
+// Aprobar servicio
+router.put('/admin/servicios/:id/aprobar', verificarToken, soloAdmin, async (req, res) => {
+  try {
+    const pool = require('../models/bd');
+    const result = await pool.query(
+      'UPDATE servicios_repartidor SET aprobado = true WHERE id = $1 RETURNING *',
+      [req.params.id]
+    );
+    if (!result.rows[0]) {
+      return res.status(404).json({ error: true, message: 'Servicio no encontrado' });
+    }
+    res.json({ error: false, message: 'Servicio aprobado', servicio: result.rows[0] });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: true, message: 'Error al aprobar' });
+  }
+});
 
 module.exports = router;

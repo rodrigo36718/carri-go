@@ -6,6 +6,7 @@ async function getServiciosDisponibles() {
     FROM servicios_repartidor s
     JOIN usuarios u ON u.id = s.repartidor_id
     WHERE s.disponible = true
+      AND s.aprobado = true
     ORDER BY s.created_at DESC
   `;
   const result = await pool.query(query);

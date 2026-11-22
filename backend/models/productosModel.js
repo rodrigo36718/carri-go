@@ -6,7 +6,9 @@ async function getProductos() {
     SELECT p.*, r.nombre as restaurante_nombre
     FROM productos p
     JOIN restaurantes r ON r.id = p.restaurante_id
-    WHERE p.disponible = true AND r.activo = true
+    WHERE p.disponible = true
+      AND r.activo = true
+      AND p.aprobado = true
     ORDER BY p.created_at DESC
   `;
   const result = await pool.query(query);

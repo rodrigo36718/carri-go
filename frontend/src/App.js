@@ -1,60 +1,101 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
-var cors = require('cors');
-var session = require('express-session');
-require('dotenv').config();
+import React, { useState, useEffect } from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
-var apiRouter = require('./routes/api');
-var adminLoginRouter = require('./routes/admin/login');
-var adminSolicitudesRouter = require('./routes/admin/solicitudes');
+import Header from "./components/layout/Header";
+import Footer from "./components/layout/Footer";
 
-var app = express();
+import Inicio from "./pages/Inicio";
+import Delivery from "./pages/Delivery";
+import Encargos from "./pages/Encargos";
+import Repartidores from "./pages/Repartidores";
+import Iniciarsesion from "./pages/Iniciarsesion";
+import Registrarse from "./pages/Registrarse";
+import ModalidadRepartidor from "./pages/ModalidadRepartidor";
+import MisProductos from "./pages/MisProductos";
+import MiServicio from "./pages/MiServicio";
 
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'hbs');
+import "./App.css";
 
-app.use(logger('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
-app.use(cors());
+function App() {
+  const [ventana, setVentana] = useState(null);
+  const [usuario, setUsuario] = useState(null);
 
-app.use(session({
-  secret: process.env.SESSION_SECRET || 'carrigo_admin_secret',
-  resave: false,
-  saveUninitialized: false,
-  cookie: { maxAge: 1000 * 60 * 60 * 8 } // 8 horas
-}));
+  useEffect(() => {
+    const usuarioGuardado = localStorage.getItem("usuario");
+    if (usuarioGuardado) {
+      try {
+        setUsuario(JSON.parse(usuarioGuardado));
+      } catch (error) {
+        localStorage.removeItem("usuario");
+      }
+    }
+  }, []);
 
-var fileUpload = require('express-fileupload');
-app.use(fileUpload({
-  useTempFiles: true,
-  tempFileDir: '/tmp/'
-}));
+  const handleLoginSuccess = (usuarioLogueado) => {
+    setUsuario(usuarioLogueado);
+    setVentana(null);
+  };
 
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
-app.use('/api', apiRouter);
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("usuario");
+    setUsuario(null);
+  };
 
-// Admin en el backend
-app.use('/admin/login', adminLoginRouter);
-app.use('/admin', adminSolicitudesRouter);
+  return (
+    <div className="App">
+      <BrowserRouter>
+        <Header
+          usuario={usuario}
+          onLogout={handleLogout}
+          abrirIniciarSesion={() => setVentana("login")}
+          abrirRegistrarse={() => setVentana("registro")}
+          abrirPerfil={() => setVentana("modalidades")}
+        />
 
-app.use(function (req, res, next) {
-  next(createError(404));
-});
+        <Routes>
+          <Route path="/" element={<Inicio />} />
+          <Route path="/Delivery" element={<Delivery />} />
+          <Route path="/Encargos" element={<Encargos />} />
+          <Route path="/Repartidores" element={<Repartidores />} />
+          <Route path="/MisProductos" element={<MisProductos />} />
+          <Route path="/MiServicio" element={<MiServicio />} />
+        </Routes>
 
-app.use(function (err, req, res, next) {
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
-  res.status(err.status || 500);
-  res.render('error');
-});
+        <Footer />
+      </BrowserRouter>
 
-module.exports = app;
+      {ventana !== null && (
+        <div className="modal-fondo" onClick={() => setVentana(null)}>
+          <div
+            className="modal-contenido"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {ventana === "login" && (
+              <Iniciarsesion
+                onLoginSuccess={handleLoginSuccess}
+                abrirRegistrarse={() => setVentana("registro")}
+              />
+            )}
+
+            {ventana === "registro" && (
+              <Registrarse
+                onLoginSuccess={handleLoginSuccess}
+                abrirIniciarSesion={() => setVentana("login")}
+              />
+            )}
+
+            {ventana === "modalidades" && (
+              <ModalidadRepartidor
+                usuario={usuario}
+                onClose={() => setVentana(null)}
+              />
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default App;
