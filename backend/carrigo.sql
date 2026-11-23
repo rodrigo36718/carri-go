@@ -1,103 +1,245 @@
--- phpMyAdmin SQL Dump
--- version 5.2.1
--- https://www.phpmyadmin.net/
---
--- Servidor: 127.0.0.1
--- Tiempo de generación: 01-05-2025 a las 23:42:11
--- Versión del servidor: 10.4.32-MariaDB
--- Versión de PHP: 8.2.12
+BEGIN;
 
-SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-START TRANSACTION;
-SET time_zone = "+00:00";
+-- =========================
+-- USUARIOS
+-- =========================
+CREATE TABLE IF NOT EXISTS usuarios (
+    id SERIAL PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    apellido VARCHAR(100) NOT NULL,
+    email VARCHAR(150) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    telefono VARCHAR(30),
+    rol VARCHAR(20) NOT NULL DEFAULT 'cliente'
+        CHECK (rol IN ('cliente', 'restaurante', 'repartidor', 'admin')),
+    modalidad_delivery BOOLEAN DEFAULT false,
+    modalidad_encargos BOOLEAN DEFAULT false,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
+-- =========================
+-- DIRECCIONES
+-- =========================
+CREATE TABLE IF NOT EXISTS direcciones (
+    id SERIAL PRIMARY KEY,
+    usuario_id INTEGER NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+    alias VARCHAR(50),
+    calle VARCHAR(150) NOT NULL,
+    numero VARCHAR(20),
+    localidad VARCHAR(100),
+    provincia VARCHAR(100),
+    codigo_postal VARCHAR(20),
+    referencia TEXT,
+    latitud DECIMAL(10,7),
+    longitud DECIMAL(10,7),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8mb4 */;
+-- =========================
+-- RESTAURANTES
+-- =========================
+CREATE TABLE IF NOT EXISTS restaurantes (
+    id SERIAL PRIMARY KEY,
+    usuario_id INTEGER NOT NULL UNIQUE REFERENCES usuarios(id),
+    nombre VARCHAR(150) NOT NULL,
+    descripcion TEXT,
+    telefono VARCHAR(30),
+    direccion TEXT,
+    imagen_url TEXT,
+    activo BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
---
--- Base de datos: `transportesdiplo`
---
+-- =========================
+-- CATEGORÍAS
+-- =========================
+CREATE TABLE IF NOT EXISTS categorias (
+    id SERIAL PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL UNIQUE,
+    descripcion TEXT,
+    activo BOOLEAN DEFAULT TRUE
+);
 
--- --------------------------------------------------------
+-- =========================
+-- PRODUCTOS (platos)
+-- =========================
+CREATE TABLE IF NOT EXISTS productos (
+    id SERIAL PRIMARY KEY,
+    restaurante_id INTEGER NOT NULL REFERENCES restaurantes(id),
+    categoria_id INTEGER REFERENCES categorias(id),
+    nombre VARCHAR(150) NOT NULL,
+    descripcion TEXT,
+    precio NUMERIC(12,2) NOT NULL CHECK (precio >= 0),
+    imagen_url TEXT,
+    disponible BOOLEAN DEFAULT TRUE,
+    estado VARCHAR(20) NOT NULL DEFAULT 'pendiente'
+        CHECK (estado IN ('pendiente', 'aprobado', 'rechazado')),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
---
--- Estructura de tabla para la tabla `novedades`
---
+-- =========================
+-- PEDIDOS DELIVERY
+-- =========================
+CREATE TABLE IF NOT EXISTS pedidos (
+    id SERIAL PRIMARY KEY,
+    cliente_id INTEGER NOT NULL REFERENCES usuarios(id),
+    restaurante_id INTEGER NOT NULL REFERENCES restaurantes(id),
+    direccion_id INTEGER REFERENCES direcciones(id),
+    estado VARCHAR(30) NOT NULL DEFAULT 'pendiente',
+    subtotal NUMERIC(12,2) NOT NULL DEFAULT 0,
+    costo_envio NUMERIC(12,2) NOT NULL DEFAULT 0,
+    total NUMERIC(12,2) NOT NULL DEFAULT 0,
+    observaciones TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CHECK (subtotal >= 0 AND costo_envio >= 0 AND total >= 0)
+);
 
-CREATE TABLE `novedades` (
-  `id` int(11) NOT NULL,
-  `titulo` varchar(250) NOT NULL,
-  `subtitulo` text NOT NULL,
-  `cuerpo` text NOT NULL,
-  `img_id` varchar(250) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+-- =========================
+-- DETALLES DE PEDIDOS
+-- =========================
+CREATE TABLE IF NOT EXISTS detalles_pedido (
+    id SERIAL PRIMARY KEY,
+    pedido_id INTEGER NOT NULL REFERENCES pedidos(id) ON DELETE CASCADE,
+    producto_id INTEGER REFERENCES productos(id),
+    nombre_producto VARCHAR(150) NOT NULL,
+    cantidad INTEGER NOT NULL CHECK (cantidad > 0),
+    precio_unitario NUMERIC(12,2) NOT NULL CHECK (precio_unitario >= 0),
+    subtotal NUMERIC(12,2) NOT NULL CHECK (subtotal >= 0)
+);
 
---
--- Volcado de datos para la tabla `novedades`
---
+-- =========================
+-- ENCARGOS
+-- =========================
+CREATE TABLE IF NOT EXISTS encargos (
+    id SERIAL PRIMARY KEY,
+    cliente_id INTEGER NOT NULL REFERENCES usuarios(id),
+    direccion_id INTEGER REFERENCES direcciones(id),
+    titulo VARCHAR(150) NOT NULL,
+    descripcion TEXT NOT NULL,
+    direccion_compra TEXT,
+    direccion_entrega TEXT,
+    presupuesto NUMERIC(12,2) CHECK (presupuesto >= 0),
+    costo_servicio NUMERIC(12,2) DEFAULT 0,
+    estado VARCHAR(30) NOT NULL DEFAULT 'pendiente',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
-INSERT INTO `novedades` (`id`, `titulo`, `subtitulo`, `cuerpo`, `img_id`) VALUES
-(1, 'FMI: el Gobierno se aseguró un desembolso en el corto plazo en plena caída de reservas y suba del riesgo país', 'Este viernes el acuerdo técnico oficializado en las últimas horas podría quedar aprobado por el directorio. El primer envío de dólares para reforzar al Banco Central sería rápido y se esperan hasta USD 12.000 millones', 'Los plazos con el Fondo Monetario parecen llegar a su fin en los próximos días y se espera una reunión del directorio antes del fin de semana que termine con el proceso de más de cuatro meses de negociaciones para un acuerdo nuevo que le otorgue un refuerzo urgente a un Banco Central que en las últimas semanas aceleró su caída de reservas.', NULL),
-(3, 'Confirmaron que mañana funcionarán los colectivos en todo el país pese al paro de la CGT', 'Mario Callegari, vocero del gremio del sector, ratificó que los conductores de corta, media y larga distancia no adherirán a la medida de fuerza. Qué pasará con el resto de los transportes públicos', '“Mañana va a haber colectivos normalmente”, aseguró Mario Callegari al ser consultado por Eduardo Feinmann en radio Mitre.\r\n\r\nAl ser consultado sobre los motivos por los cuales su sindicato no se suma a la huelga, Callegari recordó que la UTA se encuentra bajo un proceso de conciliación obligatoria y por ese motivo no tienen margen para parar. “Dentro de la ley todo, fuera de la ley nada”, aseguró.', NULL),
-(11, '15', '15', '15', 'o3cefnkd8ohvwg5521c7'),
-(12, '16', '16', '16', 't6kknim2c1stxods9o0i');
+-- =========================
+-- SERVICIOS DE REPARTIDOR
+-- =========================
+CREATE TABLE IF NOT EXISTS servicios_repartidor (
+    id SERIAL PRIMARY KEY,
+    repartidor_id INTEGER NOT NULL UNIQUE REFERENCES usuarios(id),
+    vehiculo VARCHAR(50) NOT NULL,
+    capacidad VARCHAR(100),
+    zona VARCHAR(100),
+    telefono VARCHAR(30),
+    imagen_url TEXT,
+    disponible BOOLEAN DEFAULT true,
+    estado VARCHAR(20) NOT NULL DEFAULT 'pendiente'
+        CHECK (estado IN ('pendiente', 'aprobado', 'rechazado')),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
--- --------------------------------------------------------
+-- =========================
+-- ASIGNACIONES
+-- =========================
+CREATE TABLE IF NOT EXISTS asignaciones (
+    id SERIAL PRIMARY KEY,
+    repartidor_id INTEGER NOT NULL REFERENCES usuarios(id),
+    pedido_id INTEGER UNIQUE REFERENCES pedidos(id),
+    encargo_id INTEGER UNIQUE REFERENCES encargos(id),
+    estado VARCHAR(30) NOT NULL DEFAULT 'asignado',
+    fecha_asignacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CHECK (
+        (pedido_id IS NOT NULL AND encargo_id IS NULL)
+        OR
+        (pedido_id IS NULL AND encargo_id IS NOT NULL)
+    )
+);
 
---
--- Estructura de tabla para la tabla `usuarios`
---
+-- =========================
+-- PAGOS
+-- =========================
+CREATE TABLE IF NOT EXISTS pagos (
+    id SERIAL PRIMARY KEY,
+    pedido_id INTEGER REFERENCES pedidos(id),
+    encargo_id INTEGER REFERENCES encargos(id),
+    usuario_id INTEGER NOT NULL REFERENCES usuarios(id),
+    importe NUMERIC(12,2) NOT NULL CHECK (importe >= 0),
+    metodo VARCHAR(50),
+    estado VARCHAR(30) NOT NULL DEFAULT 'pendiente',
+    referencia_externa VARCHAR(200),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CHECK (
+        (pedido_id IS NOT NULL AND encargo_id IS NULL)
+        OR
+        (pedido_id IS NULL AND encargo_id IS NOT NULL)
+    )
+);
 
-CREATE TABLE `usuarios` (
-  `id` int(11) NOT NULL,
-  `usuario` varchar(250) NOT NULL,
-  `password` varchar(250) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+-- =========================
+-- CALIFICACIONES
+-- =========================
+CREATE TABLE IF NOT EXISTS calificaciones (
+    id SERIAL PRIMARY KEY,
+    usuario_id INTEGER NOT NULL REFERENCES usuarios(id),
+    repartidor_id INTEGER NOT NULL REFERENCES usuarios(id),
+    pedido_id INTEGER REFERENCES pedidos(id),
+    encargo_id INTEGER REFERENCES encargos(id),
+    puntuacion INTEGER NOT NULL CHECK (puntuacion BETWEEN 1 AND 5),
+    comentario TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CHECK (
+        (pedido_id IS NOT NULL AND encargo_id IS NULL)
+        OR
+        (pedido_id IS NULL AND encargo_id IS NOT NULL)
+    )
+);
 
---
--- Volcado de datos para la tabla `usuarios`
---
+-- =========================
+-- NOTIFICACIONES
+-- =========================
+CREATE TABLE IF NOT EXISTS notificaciones (
+    id SERIAL PRIMARY KEY,
+    usuario_id INTEGER NOT NULL REFERENCES usuarios(id),
+    titulo VARCHAR(150) NOT NULL,
+    mensaje TEXT NOT NULL,
+    leida BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
-INSERT INTO `usuarios` (`id`, `usuario`, `password`) VALUES
-(1, 'Armando', '81dc9bdb52d04dc20036dbd8313ed055'),
-(2, 'Nathalia', '81dc9bdb52d04dc20036dbd8313ed055');
+-- =========================
+-- HISTORIAL DE ESTADOS
+-- =========================
+CREATE TABLE IF NOT EXISTS historial_estados (
+    id SERIAL PRIMARY KEY,
+    pedido_id INTEGER REFERENCES pedidos(id),
+    encargo_id INTEGER REFERENCES encargos(id),
+    estado VARCHAR(30) NOT NULL,
+    fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CHECK (
+        (pedido_id IS NOT NULL AND encargo_id IS NULL)
+        OR
+        (pedido_id IS NULL AND encargo_id IS NOT NULL)
+    )
+);
 
---
--- Índices para tablas volcadas
---
+-- =========================
+-- ÍNDICES
+-- =========================
+CREATE INDEX IF NOT EXISTS idx_direcciones_usuario ON direcciones(usuario_id);
+CREATE INDEX IF NOT EXISTS idx_productos_restaurante ON productos(restaurante_id);
+CREATE INDEX IF NOT EXISTS idx_productos_estado ON productos(estado);
+CREATE INDEX IF NOT EXISTS idx_pedidos_cliente ON pedidos(cliente_id);
+CREATE INDEX IF NOT EXISTS idx_pedidos_estado ON pedidos(estado);
+CREATE INDEX IF NOT EXISTS idx_encargos_cliente ON encargos(cliente_id);
+CREATE INDEX IF NOT EXISTS idx_encargos_estado ON encargos(estado);
+CREATE INDEX IF NOT EXISTS idx_servicios_repartidor ON servicios_repartidor(repartidor_id);
+CREATE INDEX IF NOT EXISTS idx_servicios_estado ON servicios_repartidor(estado);
+CREATE INDEX IF NOT EXISTS idx_asignaciones_repartidor ON asignaciones(repartidor_id);
+CREATE INDEX IF NOT EXISTS idx_notificaciones_usuario ON notificaciones(usuario_id);
 
---
--- Indices de la tabla `novedades`
---
-ALTER TABLE `novedades`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indices de la tabla `usuarios`
---
-ALTER TABLE `usuarios`
-  ADD PRIMARY KEY (`id`);
-
---
--- AUTO_INCREMENT de las tablas volcadas
---
-
---
--- AUTO_INCREMENT de la tabla `novedades`
---
-ALTER TABLE `novedades`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
-
---
--- AUTO_INCREMENT de la tabla `usuarios`
---
-ALTER TABLE `usuarios`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 COMMIT;
-
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
