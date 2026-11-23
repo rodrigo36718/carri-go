@@ -243,3 +243,19 @@ CREATE INDEX IF NOT EXISTS idx_asignaciones_repartidor ON asignaciones(repartido
 CREATE INDEX IF NOT EXISTS idx_notificaciones_usuario ON notificaciones(usuario_id);
 
 COMMIT;
+
+-- =========================
+-- USUARIO ADMIN POR DEFECTO
+-- Email: admin1@gmail.com
+-- Contraseña: admin123
+-- =========================
+INSERT INTO usuarios (nombre, apellido, email, password, telefono, rol)
+VALUES (
+  'Admin',
+  'CarriGO',
+  'admin1@gmail.com',
+  '$2b$10$8K1p/a0dL1LXMIgoEDFrwOe6VTqJqJqJqJqJqJqJqJqJqJqJqJqJqK', -- placeholder
+  NULL,
+  'admin'
+)
+ON CONFLICT (email) DO NOTHING;
