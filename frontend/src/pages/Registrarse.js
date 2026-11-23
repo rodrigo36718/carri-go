@@ -150,15 +150,7 @@ const Registrarse = (props) => {
             id="rol"
             value={rol}
             onChange={(e) => setRol(e.target.value)}
-            style={{
-              width: "100%",
-              height: "42px",
-              backgroundColor: "#101010",
-              color: "white",
-              border: "1px solid #333",
-              borderRadius: "7px",
-              padding: "0 13px",
-            }}
+            className="select-rol"
           >
             <option value="cliente">Cliente</option>
             <option value="restaurante">Restaurante</option>
@@ -167,48 +159,46 @@ const Registrarse = (props) => {
         </div>
 
         {rol === "repartidor" && (
-          <div className="campo">
+          <div className="campo modalidades">
             <label>Modalidades de trabajo</label>
-            <p style={{ color: "#aaa", fontSize: "13px", margin: "5px 0 10px" }}>
-              Podés elegir una o trabajar en las dos modalidades con la misma cuenta.
+            <p className="modalidades-ayuda">
+              Elegí una o las dos. Podés trabajar con la misma cuenta.
             </p>
-            <label
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "9px",
-                marginBottom: "9px",
-              }}
-            >
-              <input
-                type="checkbox"
-                checked={modalidadDelivery}
-                onChange={(e) => setModalidadDelivery(e.target.checked)}
-              />
-              Delivery: pedidos de restaurantes
-            </label>
-            <label style={{ display: "flex", alignItems: "center", gap: "9px" }}>
-              <input
-                type="checkbox"
-                checked={modalidadEncargos}
-                onChange={(e) => setModalidadEncargos(e.target.checked)}
-              />
-              Encargos: compras, mandados y trámites
-            </label>
+
+            <div className="modalidades-grid">
+              <button
+                type="button"
+                className={`modalidad-card ${modalidadDelivery ? "activa" : ""}`}
+                onClick={() => setModalidadDelivery(!modalidadDelivery)}
+              >
+                <span className="modalidad-check">
+                  {modalidadDelivery ? "✓" : ""}
+                </span>
+                <span className="modalidad-texto">
+                  <strong>Delivery</strong>
+                  <small>Pedidos de restaurantes</small>
+                </span>
+              </button>
+
+              <button
+                type="button"
+                className={`modalidad-card ${modalidadEncargos ? "activa" : ""}`}
+                onClick={() => setModalidadEncargos(!modalidadEncargos)}
+              >
+                <span className="modalidad-check">
+                  {modalidadEncargos ? "✓" : ""}
+                </span>
+                <span className="modalidad-texto">
+                  <strong>Encargos</strong>
+                  <small>Compras, mandados y trámites</small>
+                </span>
+              </button>
+            </div>
           </div>
         )}
 
         {mensaje && (
-          <p
-            style={{
-              color: error ? "#ff4d4d" : "#4caf50",
-              textAlign: "center",
-              marginBottom: "12px",
-              fontSize: "14px",
-            }}
-          >
-            {mensaje}
-          </p>
+          <p className={error ? "mensaje-error" : "mensaje-ok"}>{mensaje}</p>
         )}
 
         <button type="submit" className="btn-registrarse" disabled={cargando}>

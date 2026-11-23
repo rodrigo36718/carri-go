@@ -1,135 +1,250 @@
 .registro {
-    width: 100%;
-    color: white;
+  width: 100%;
+  color: white;
 }
 
 .registro h2 {
-    margin: 0 0 8px;
-
-    color: white;
-
-    font-size: 28px;
-    text-align: center;
+  margin: 0 0 8px;
+  color: white;
+  font-size: 28px;
+  text-align: center;
 }
 
 .registro .campo {
-    margin-bottom: 15px;
+  margin-bottom: 15px;
 }
 
 .registro .campo label {
-    display: block;
-
-    margin-bottom: 7px;
-
-    color: #dddddd;
-
-    font-size: 13px;
+  display: block;
+  margin-bottom: 7px;
+  color: #dddddd;
+  font-size: 13px;
 }
 
 .registro .campo input {
-    width: 100%;
-    height: 42px;
-
-    box-sizing: border-box;
-
-    padding: 0 13px;
-
-    border: 1px solid #333333;
-    border-radius: 7px;
-
-    background-color: #101010;
-
-    color: white;
-
-    font-size: 14px;
-
-    outline: none;
+  width: 100%;
+  height: 42px;
+  box-sizing: border-box;
+  padding: 0 13px;
+  border: 1px solid #333333;
+  border-radius: 7px;
+  background-color: #101010;
+  color: white;
+  font-size: 14px;
+  outline: none;
 }
 
 .registro .campo input:focus {
-    border-color: #ff711f;
-
-    box-shadow: 0 0 0 2px rgba(255, 113, 31, 0.12);
+  border-color: #ff711f;
+  box-shadow: 0 0 0 2px rgba(255, 113, 31, 0.12);
 }
 
 .registro .campo input::placeholder {
-    color: #666666;
+  color: #666666;
+}
+
+.select-rol {
+  width: 100%;
+  height: 42px;
+  box-sizing: border-box;
+  padding: 0 13px;
+  border: 1px solid #333333;
+  border-radius: 7px;
+  background-color: #101010;
+  color: white;
+  font-size: 14px;
+  outline: none;
+  cursor: pointer;
+}
+
+.select-rol:focus {
+  border-color: #ff711f;
+  box-shadow: 0 0 0 2px rgba(255, 113, 31, 0.12);
+}
+
+/* Modalidades */
+.modalidades-ayuda {
+  color: #999;
+  font-size: 12px;
+  margin: 4px 0 12px;
+  line-height: 1.4;
+}
+
+.modalidades-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.modalidad-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 12px 10px;
+  border: 1px solid #333;
+  border-radius: 10px;
+  background-color: #101010;
+  color: white;
+  cursor: pointer;
+  text-align: left;
+  transition: 0.2s;
+}
+
+.modalidad-card:hover {
+  border-color: #555;
+  background-color: #151515;
+}
+
+.modalidad-card.activa {
+  border-color: #ff711f;
+  background-color: rgba(255, 113, 31, 0.1);
+  box-shadow: 0 0 0 1px rgba(255, 113, 31, 0.25);
+}
+
+.modalidad-check {
+  width: 22px;
+  height: 22px;
+  min-width: 22px;
+  border-radius: 6px;
+  border: 1.5px solid #555;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: bold;
+  color: white;
+  background: transparent;
+}
+
+.modalidad-card.activa .modalidad-check {
+  background-color: #ff711f;
+  border-color: #ff711f;
+}
+
+.modalidad-texto {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.modalidad-texto strong {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.modalidad-texto small {
+  font-size: 11px;
+  color: #999;
+}
+
+.modalidad-card.activa .modalidad-texto small {
+  color: #ccc;
+}
+
+.mensaje-ok {
+  color: #4caf50;
+  text-align: center;
+  margin-bottom: 12px;
+  font-size: 14px;
+}
+
+.mensaje-error {
+  color: #ff4d4d;
+  text-align: center;
+  margin-bottom: 12px;
+  font-size: 14px;
 }
 
 .btn-registrarse {
-    width: 100%;
-    height: 45px;
-
-    margin-top: 8px;
-
-    border: none;
-    border-radius: 7px;
-
-    background-color: #ff711f;
-
-    color: white;
-
-    font-size: 12px;
-    font-weight: bold;
-
-    cursor: pointer;
-
-    transition: 0.2s;
+  width: 100%;
+  height: 45px;
+  margin-top: 8px;
+  border: none;
+  border-radius: 7px;
+  background-color: #ff711f;
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
 }
 
 .btn-registrarse:hover {
-    background-color: #ff8a45;
-
-    transform: translateY(-1px);
+  background-color: #ff8a45;
+  transform: translateY(-1px);
 }
-/* =========================
-   RESPONSIVE
-========================= */
 
+.btn-registrarse:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.texto-registro {
+  margin: 18px 0 8px;
+  color: #888;
+  font-size: 13px;
+  text-align: center;
+}
+
+.btn-crear-cuenta {
+  width: 100%;
+  height: 42px;
+  border: 1px solid #ff711f;
+  border-radius: 7px;
+  background-color: transparent;
+  color: #ff711f;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-crear-cuenta:hover {
+  background-color: #ff711f;
+  color: white;
+}
+
+/* Responsive */
 @media (max-width: 500px) {
+  .registro h2 {
+    font-size: 24px;
+  }
 
-    .registro h2 {
-        font-size: 24px;
-    }
+  .registro .campo {
+    margin-bottom: 12px;
+  }
 
-    .registro .subtitulo {
-        font-size: 13px;
-        margin-bottom: 20px;
-    }
+  .registro .campo label {
+    font-size: 12px;
+  }
 
-    .registro .campo {
-        margin-bottom: 12px;
-    }
+  .registro .campo input,
+  .select-rol {
+    height: 40px;
+    font-size: 13px;
+  }
 
-    .registro .campo label {
-        font-size: 12px;
-    }
-
-    .registro .campo input {
-        height: 40px;
-        font-size: 13px;
-    }
-
-    .btn-registrarse {
-        height: 43px;
-        font-size: 11px;
-    }
-
+  .btn-registrarse {
+    height: 43px;
+    font-size: 11px;
+  }
 }
 
+@media (max-width: 420px) {
+  .modalidades-grid {
+    grid-template-columns: 1fr;
+  }
+}
 
 @media (max-width: 360px) {
+  .registro h2 {
+    font-size: 22px;
+  }
 
-    .registro h2 {
-        font-size: 22px;
-    }
-
-    .registro .subtitulo {
-        font-size: 12px;
-    }
-
-    .registro .campo input {
-        height: 38px;
-    }
-
+  .registro .campo input,
+  .select-rol {
+    height: 38px;
+  }
 }
